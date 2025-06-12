@@ -7,28 +7,23 @@ from apps.enderecos.models import UnidadeFederativa, Municipio, TipoEndereco, En
 
 class EnderecoForm(forms.ModelForm):
     uf = forms.ModelChoiceField(
-        label='Estado',
-        queryset=UnidadeFederativa.objects.all().order_by('nome'),
+        queryset=UnidadeFederativa.objects.filter(sigla='RN').order_by('nome'),
         widget=s2forms.Select2Widget(
             attrs={
                 'data-minimum-input-length': 2,
                 'data-selection-css-class': 'form-control'
             }
         ),
-        required=True,
     )
+
     municipio = forms.ModelChoiceField(
-        label='Município',
-        queryset=Municipio.objects.all(),
-        widget=s2forms.HeavySelect2Widget(
-            data_url='/enderecos/data-view/buscar-municipio/?as_dict=true',
-            dependent_fields={'uf': 'uf'},
+        queryset=Municipio.objects.filter(uf__sigla='RN').order_by('nome'),
+        widget=s2forms.Select2Widget(
             attrs={
                 'data-minimum-input-length': 2,
                 'data-selection-css-class': 'form-control'
-            },
+            }
         ),
-        required=True
     )
     rua = forms.CharField(
         label='Logradouro',

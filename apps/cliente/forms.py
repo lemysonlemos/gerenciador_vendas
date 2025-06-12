@@ -8,7 +8,7 @@ from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from django_select2 import forms as s2forms
 from localflavor.br.forms import BRCPFField as BRCPFFormField
 
-from apps.autenticacao.models import UsuarioBase
+from apps.autenticacao.models import UsuarioBase, Usuario
 from apps.cliente.models import Cliente, AnexoCliente
 from apps.enderecos.models import UnidadeFederativa, Pais, Municipio
 
@@ -217,7 +217,12 @@ class AnexoClienteForm(forms.ModelForm):
 
 
 class CadastrarClienteForm(forms.ModelForm):
-    cpf = forms.HiddenInput()
+    cpf = forms.CharField(
+        label='CPF',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control input_bg',
+        })
+    )
     senha = forms.CharField(
         widget=forms.PasswordInput(),
         min_length=6,
@@ -229,17 +234,6 @@ class CadastrarClienteForm(forms.ModelForm):
         label='Confirmação de senha',
         min_length=6,
         max_length=20
-    )
-    captcha = ReCaptchaField(
-        widget=ReCaptchaV2Checkbox(
-            api_params={'hl': 'pt-BR'}
-        ),
-        label='Verificação',
-        help_text='Marque a caixa acima.',
-        error_messages={
-            'captcha_invalid': "Por favor, marque a caixa de verificação ao final do formulário.",
-            'captcha_error': "Por favor, marque a caixa de verificação ao final do formulário."
-        }
     )
     data_nascimento = forms.DateField(
         label='Data de nascimento',
@@ -254,39 +248,15 @@ class CadastrarClienteForm(forms.ModelForm):
         ),
         required=True,
     )
-    uf = forms.ModelChoiceField(
-        label='Estado',
-        queryset=UnidadeFederativa.objects.all().order_by('nome'),
-        widget=s2forms.Select2Widget(
-            attrs={
-                'data-minimum-input-length': 2,
-                'data-selection-css-class': 'form-control'
-            }
-        ),
-        required=False,
-    )
-    naturalidade = forms.ModelChoiceField(
-        label='Naturalidade',
-        queryset=Municipio.objects.all(),
-        widget=s2forms.HeavySelect2Widget(
-            data_url='/enderecos/data-view/buscar-municipio/?as_dict=true',
-            dependent_fields={'uf': 'uf'},
-            attrs={
-                'data-minimum-input-length': 2,
-                'data-selection-css-class': 'form-control'
-            },
-        ),
-        required=True
-    )
     field_order = [
-        'nome_completo', 'nome_social', 'data_nascimento', 'uf', 'naturalidade', 'sexo', 'raca',
+        'cpf', 'nome_completo', 'nome_social', 'data_nascimento', 'sexo', 'raca',
         'profissao', 'senha', 'senha_confirmacao',
     ]
 
     class Meta:
         model = Cliente
         fields = [
-            'foto', 'nome_completo', 'nome_social', 'data_nascimento', 'uf', 'naturalidade',
+            'foto', 'nome_completo', 'nome_social', 'data_nascimento',
             'sexo', 'raca',  'profissao',]
         widgets = {
             'data_nascimento': forms.DateInput(attrs={
@@ -294,12 +264,6 @@ class CadastrarClienteForm(forms.ModelForm):
                 'min': date(1870, 1, 1),
                 'required': True
             }),
-            'naturalidade': s2forms.Select2Widget(
-                attrs={
-                    'data-minimum-input-length': 2,
-                    'data-selection-css-class': 'form-control'
-                }
-            ),
             'profissao': forms.TextInput(),
         }
 
@@ -312,15 +276,26 @@ class CadastrarClienteForm(forms.ModelForm):
             )
         return self.cleaned_data["senha_confirmacao"]
 
-
     @atomic
-    def save(self):
-        usuario = UsuarioBase(username=f'{self.instance.cpf}_cliente')
-        usuario.set_password(self.cleaned_data['senha'])
-        usuario.save()
-        self.instance.user = usuario
-        return super().save()
+    def save(self, commit=True):
+        # 1. Cria e salva o UsuarioBase
+        usuario_base = UsuarioBase(username=f'{self.cleaned_data["cpf"]}_cliente')
+        usuario_base.set_password(self.cleaned_data['senha'])
+        usuario_base.save()
 
+        # 2. Associa o usuario_base ao cliente antes de salvar o cliente
+        self.instance.user = usuario_base
+        self.instance.cpf = self.cleaned_data['cpf']  # garante que o CPF vá pro model
+
+        # 3. Salva o Cliente
+        if commit:
+            self.instance.save()
+
+        usuario, _ = Usuario.objects.get_or_create(
+            cliente=self.instance,
+            user=usuario_base,
+        )
+        return self.instance
 
 
 class EditarClienteForm(forms.ModelForm):

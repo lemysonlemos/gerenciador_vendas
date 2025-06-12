@@ -10,6 +10,7 @@ from simple_history.models import HistoricalRecords
 from softdelete.models import SoftDeleteModel
 from localflavor.br.models import BRCPFField
 
+from apps.autenticacao.models import Usuario
 from apps.base.models import BaseModelDeleteLogico, BaseModel
 from apps.base.utils import digits
 from apps.cliente.managers import ClienteManager
@@ -152,24 +153,6 @@ class Cliente(BaseModelDeleteLogico):
         null=True,
         verbose_name="Raça/Cor"
     )
-    pais_origem = models.ForeignKey(
-        'enderecos.Pais',
-        related_name="clientes",
-        verbose_name='País de origem',
-        db_column='FK_PAIS_ORIGEM',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-    naturalidade = models.ForeignKey(
-        'enderecos.Municipio',
-        related_name="clientes",
-        verbose_name='Naturalidade',
-        db_column='FK_MUNICIPIO_NATURALIDADE',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
     historico = HistoricalRecords(
         related_name='historico_cliente',
     )
@@ -189,6 +172,8 @@ class Cliente(BaseModelDeleteLogico):
                 name='not_both_null'
             )
         ]
+
+
 
     @classmethod
     def buscar(self, cpf):

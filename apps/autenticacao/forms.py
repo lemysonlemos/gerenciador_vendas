@@ -11,8 +11,8 @@ from apps.base.forms import BRCPFField
 
 class LoginForm(forms.Form):
     cpf = BRCPFField(
-        max_length=14,
-        min_length=14,
+        max_length=11,
+        min_length=11,
         label='CPF'
     )
     senha = forms.CharField(
@@ -20,18 +20,3 @@ class LoginForm(forms.Form):
         max_length=20,
         widget=forms.PasswordInput
     )
-    captcha = ReCaptchaField(
-        widget=ReCaptchaV2Checkbox(
-            api_params={'hl': 'pt-BR'}
-        ),
-        label='Verificação',
-        help_text='Marque a caixa acima.',
-        error_messages={
-            'captcha_invalid': "Por favor, marque a caixa de verificação ao final do formulário.",
-            'captcha_error': "Por favor, marque a caixa de verificação ao final do formulário."
-        }
-    )
-
-    def clean_cpf(self):
-        cpf = self.cleaned_data['cpf']
-        return ''.join(re.findall(r'\d+', cpf))

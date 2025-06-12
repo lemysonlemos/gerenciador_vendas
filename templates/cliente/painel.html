@@ -56,9 +56,21 @@
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease; /* Transição suave ao hover */
+            /* Estilo dos botões de navegação */
+            padding: 0.6rem 1.2rem; /* Padding para parecer um botão */
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Borda sutil */
+            border-radius: 5px; /* Cantos levemente arredondados */
+            font-size: 0.95rem; /* Tamanho da fonte um pouco menor */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra leve */
+            display: inline-flex; /* Para alinhar o texto e o ícone, se houver */
+            align-items: center; /* Alinhar verticalmente */
+            gap: 0.5rem; /* Espaçamento entre ícone e texto */
         }
         nav a:hover {
             color: #ffffff; /* Brilho no hover */
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo sutil ao hover */
+            border-color: rgba(255, 255, 255, 0.8); /* Borda mais visível ao hover */
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3); /* Sombra mais pronunciada ao hover */
         }
 
         /* Conteúdo Principal */
@@ -164,9 +176,16 @@
     <header>
         <h1>LemyWalk</h1>
         <nav>
-{#            <a href="{% url 'login' %}">Login</a>#}
-{#            <a href="{% url 'cadastro' %}">Cadastro</a>#}
-{#            <a href="{% url 'home' %}">Início</a>#}
+            {# Os três botões de navegação adicionados aqui #}
+            <a href="{% url 'cliente:perfil' %}">
+                <i class="bi bi-person-circle"></i> Perfil
+            </a>
+{#            <a href="{% url 'estoques:catalogo' %}">#}
+                <i class="bi bi-grid-fill"></i> Catálogo
+            </a>
+{#            <a href="{% url 'compras:itens' %}">#}
+                <i class="bi bi-bag-fill"></i> Minhas Compras
+            </a>
         </nav>
     </header>
 

@@ -3,189 +3,285 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Cadastro de Cliente</h2>
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">Cadastro de Cliente</h2>
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         {% endfor %}
     {% endif %}
 
     <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
-        <fieldset class="border p-3 mb-4">
-            <legend class="w-auto px-2">Dados Pessoais e Acesso</legend>
-            {% for field in form %}
-                <div class="mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {% if field.errors %}
-                        {% render_field field|add_class:"form-control is-invalid" %}
-                    {% else %}
-                        {% render_field field|add_class:"form-control" %}
-                    {% endif %}
-                    {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
+        <!-- Dados Pessoais e Acesso -->
+        <fieldset class="border p-4 mb-4 shadow-sm rounded">
+            <legend class="w-auto px-3 fs-4 fw-bold text-primary">Dados Pessoais e Acesso</legend>
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                        {% if field.errors %}
+                            {% render_field field|add_class:"form-control is-invalid" %}
+                        {% else %}
+                            {% render_field field|add_class:"form-control" %}
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         </fieldset>
 
-        <fieldset class="border p-3 mb-4">
-            <legend class="w-auto px-2">Contatos</legend>
+        <!-- Contatos -->
+        <fieldset class="border p-4 mb-4 shadow-sm rounded">
+            <legend class="w-auto px-3 fs-4 fw-bold text-primary">Contatos</legend>
             {{ contato_formset.management_form }}
             <div id="contato-forms-container">
                 {% for cform in contato_formset %}
-                    <div class="card p-3 mb-3">
-                        {% for hidden_field in cform.hidden_fields %}
-                            {{ hidden_field }}
-                        {% endfor %}
-                        {% for field in cform.visible_fields %}
-                            <div class="mb-2">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {% if field.errors %}
-                                    {% render_field field|add_class:"form-control is-invalid" %}
-                                {% else %}
-                                    {% render_field field|add_class:"form-control" %}
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                         {% if cform.instance.pk %}
-                            <div class="form-check form-switch mt-2">
-                                {{ cform.DELETE|attr:"class:form-check-input" }}
-                                <label class="form-check-label" for="{{ cform.DELETE.id_for_label }}">Remover</label>
-                            </div>
-                        {% endif %}
+                    <div class="card p-3 mb-3 border-secondary {% if cform.errors %}border-danger{% endif %}">
+                        <div class="card-body">
+                            {% for hidden_field in cform.hidden_fields %}
+                                {{ hidden_field }}
+                            {% endfor %}
+                            {% for field in cform.visible_fields %}
+                                <div class="mb-2">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    {% if field.errors %}
+                                        {% render_field field|add_class:"form-control is-invalid" %}
+                                    {% else %}
+                                        {% render_field field|add_class:"form-control" %}
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            {% if cform.instance.pk %}
+                                <div class="text-end mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-form-button" data-formset-prefix="{{ contato_formset.prefix }}" data-form-id="{{ forloop.counter0 }}">
+                                        <i class="bi bi-trash"></i> Remover
+                                    </button>
+                                    <div class="form-check form-switch d-none">
+                                        {{ cform.DELETE|attr:"class:form-check-input" }}
+                                        <label class="form-check-label" for="{{ cform.DELETE.id_for_label }}">Remover</label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
-            <div class="text-end">
-                <button type="button" class="btn btn-outline-primary" onclick="addForm('{{ contato_formset.prefix }}', 'contato-forms-container', 'contato-empty-form-template')">+ Adicionar Contato</button>
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-primary" onclick="addForm('{{ contato_formset.prefix }}', 'contato-forms-container', 'contato-empty-form-template')">
+                    <i class="bi bi-plus-circle"></i> Adicionar Contato
+                </button>
             </div>
         </fieldset>
 
-        <fieldset class="border p-3 mb-4">
-            <legend class="w-auto px-2">Endereços</legend>
+        <!-- Endereços -->
+        <fieldset class="border p-4 mb-4 shadow-sm rounded">
+            <legend class="w-auto px-3 fs-4 fw-bold text-primary">Endereços</legend>
             {{ endereco_formset.management_form }}
             <div id="endereco-forms-container">
                 {% for eform in endereco_formset %}
-                    <div class="card p-3 mb-3">
-                        {% for hidden_field in eform.hidden_fields %}
-                            {{ hidden_field }}
-                        {% endfor %}
-                        {% for field in eform.visible_fields %}
-                            <div class="mb-2">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {% if field.errors %}
-                                    {% render_field field|add_class:"form-control is-invalid" %}
-                                {% else %}
-                                    {% render_field field|add_class:"form-control" %}
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        {% if eform.instance.pk %}
-                            <div class="form-check form-switch mt-2">
-                                {{ eform.DELETE|attr:"class:form-check-input" }}
-                                <label class="form-check-label" for="{{ eform.DELETE.id_for_label }}">Remover</label>
-                            </div>
+                    <div class="card p-3 mb-3 border-secondary {% if eform.errors %}border-danger{% endif %}">
+                        <div class="card-body">
+                            {% for hidden_field in eform.hidden_fields %}
+                                {{ hidden_field }}
+                            {% endfor %}
+                            {% for field in eform.visible_fields %}
+                                <div class="mb-2">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    {% if field.errors %}
+                                        {% render_field field|add_class:"form-control is-invalid" %}
+                                    {% else %}
+                                        {% render_field field|add_class:"form-control" %}
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            {% if eform.instance.pk %}
+                                <div class="text-end mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-form-button" data-formset-prefix="{{ endereco_formset.prefix }}" data-form-id="{{ forloop.counter0 }}">
+                                        <i class="bi bi-trash"></i> Remover
+                                    </button>
+                                    <div class="form-check form-switch d-none">
+                                        {{ eform.DELETE|attr:"class:form-check-input" }}
+                                        <label class="form-check-label" for="{{ eform.DELETE.id_for_label }}">Remover</label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-primary" onclick="addForm('{{ endereco_formset.prefix }}', 'endereco-forms-container', 'endereco-empty-form-template')">
+                    <i class="bi bi-plus-circle"></i> Adicionar Endereço
+                </button>
+            </div>
+        </fieldset>
+
+        <!-- Anexar Documento -->
+        <fieldset class="border p-4 mb-4 shadow-sm rounded">
+            <legend class="w-auto px-3 fs-4 fw-bold text-primary">Anexar Documento</legend>
+            <div class="row">
+                {% for field in form_anexo %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {% if field.errors %}
+                            {% render_field field|add_class:"form-control is-invalid" %}
+                        {% else %}
+                            {% render_field field|add_class:"form-control" %}
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
                         {% endif %}
                     </div>
                 {% endfor %}
             </div>
-            <div class="text-end">
-                <button type="button" class="btn btn-outline-primary" onclick="addForm('{{ endereco_formset.prefix }}', 'endereco-forms-container', 'endereco-empty-form-template')">+ Adicionar Endereço</button>
-            </div>
         </fieldset>
 
-        <fieldset class="border p-3 mb-4">
-            <legend class="w-auto px-2">Anexar Documento</legend>
-            {% for field in form_anexo %}
-                <div class="mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {% if field.errors %}
-                        {% render_field field|add_class:"form-control is-invalid" %}
-                    {% else %}
-                        {% render_field field|add_class:"form-control" %}
-                    {% endif %}
-                    {% if field.errors %}
-                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </fieldset>
-
-        <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle"></i> Finalizar Cadastro
+            </button>
+        </div>
     </form>
-
 </div>
 
-{# --- Templates para os formulários vazios --- #}
+<!-- Templates para formulários vazios -->
 
 <template id="contato-empty-form-template">
-    <div class="card p-3 mb-3">
-        {% for hidden_field in contato_formset.empty_form.hidden_fields %}
-            {{ hidden_field }}
-        {% endfor %}
-        {% for field in contato_formset.empty_form.visible_fields %}
-            <div class="mb-2">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {% render_field field|add_class:"form-control" %}
+    <div class="card p-3 mb-3 border-info">
+        <div class="card-body">
+            {% for hidden_field in contato_formset.empty_form.hidden_fields %}
+                {{ hidden_field }}
+                {{ form.field_name.errors }}
+            {% endfor %}
+            {% for field in contato_formset.empty_form.visible_fields %}
+                <div class="mb-2">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% render_field field|add_class:"form-control" %}
+                </div>
+            {% endfor %}
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-form-button">
+                    <i class="bi bi-trash"></i> Remover
+                </button>
+                <div class="form-check form-switch d-none">
+                    {{ contato_formset.empty_form.DELETE|attr:"class:form-check-input" }}
+                    <label class="form-check-label" for="{{ contato_formset.empty_form.DELETE.id_for_label }}">Remover</label>
+                </div>
             </div>
-        {% endfor %}
-        <div class="form-check form-switch mt-2">
-            {{ contato_formset.empty_form.DELETE|attr:"class:form-check-input" }}
-            <label class="form-check-label" for="{{ contato_formset.empty_form.DELETE.id_for_label }}">Remover</label>
         </div>
     </div>
 </template>
 
 <template id="endereco-empty-form-template">
-    <div class="card p-3 mb-3">
-        {% for hidden_field in endereco_formset.empty_form.hidden_fields %}
-            {{ hidden_field }}
-        {% endfor %}
-        {% for field in endereco_formset.empty_form.visible_fields %}
-            <div class="mb-2">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {% render_field field|add_class:"form-control" %}
+    <div class="card p-3 mb-3 border-info">
+        <div class="card-body">
+            {% for hidden_field in endereco_formset.empty_form.hidden_fields %}
+                {{ hidden_field }}
+                {{ form.field_name.errors }}
+            {% endfor %}
+            {% for field in endereco_formset.empty_form.visible_fields %}
+                <div class="mb-2">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% render_field field|add_class:"form-control" %}
+                </div>
+            {% endfor %}
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-form-button">
+                    <i class="bi bi-trash"></i> Remover
+                </button>
+                <div class="form-check form-switch d-none">
+                    {{ endereco_formset.empty_form.DELETE|attr:"class:form-check-input" }}
+                    <label class="form-check-label" for="{{ endereco_formset.empty_form.DELETE.id_for_label }}">Remover</label>
+                </div>
             </div>
-        {% endfor %}
-        <div class="form-check form-switch mt-2">
-            {{ endereco_formset.empty_form.DELETE|attr:"class:form-check-input" }}
-            <label class="form-check-label" for="{{ endereco_formset.empty_form.DELETE.id_for_label }}">Remover</label>
         </div>
     </div>
 </template>
 
-
 <script>
-function addForm(prefix, containerId, emptyFormTemplateId) {
-    const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-    let formCount = parseInt(totalForms.value);
-    const template = document.getElementById(emptyFormTemplateId);
-    const newFormHtml = template.innerHTML.replace(/__prefix__/g, formCount);
+function addForm(prefix, containerId, templateId) {
+    const container = document.getElementById(containerId);
+    const template = document.getElementById(templateId);
 
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('card', 'p-3', 'mb-3');
-    wrapper.innerHTML = newFormHtml;
+    // Clone the template content
+    const newForm = template.content.cloneNode(true);
 
-    document.getElementById(containerId).appendChild(wrapper);
+    // Count current forms
+    const totalFormsInput = document.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`);
+    let formCount = parseInt(totalFormsInput.value);
 
-    // Atualiza o TOTAL_FORMS
-    totalForms.value = formCount + 1;
+    // Update form index in the new form fields
+    const regex = new RegExp(`__prefix__`, 'g');
+    newForm.querySelectorAll('input, select, textarea, label').forEach(el => {
+        if (el.name) el.name = el.name.replace(regex, formCount);
+        if (el.id) el.id = el.id.replace(regex, formCount);
+        if (el.htmlFor) el.htmlFor = el.htmlFor.replace(regex, formCount);
+    });
 
-    // Opcional: Reinicializar quaisquer scripts de terceiros ou funcionalidades específicas
-    // que dependam de novos elementos DOM adicionados (por exemplo, seletores de data, etc.)
+    // Append the new form to container
+    container.appendChild(newForm);
+
+    // Increment total forms count
+    totalFormsInput.value = formCount + 1;
+
+    // Attach event listeners to remove buttons
+    attachRemoveListeners();
 }
+
+function attachRemoveListeners() {
+    document.querySelectorAll('.remove-form-button').forEach(button => {
+        button.removeEventListener('click', handleRemoveForm);
+        button.addEventListener('click', handleRemoveForm);
+    });
+}
+
+function handleRemoveForm(event) {
+    const button = event.currentTarget;
+    const formCard = button.closest('.card');
+
+    // If the form has a DELETE checkbox (i.e., existing instance), mark for deletion and hide
+    const formsetPrefix = button.dataset.formsetPrefix;
+    const formId = button.dataset.formId;
+
+    if (formsetPrefix !== undefined && formId !== undefined) {
+        // Mark the DELETE checkbox
+        const deleteInput = document.querySelector(`#id_${formsetPrefix}-${formId}-DELETE`);
+        if (deleteInput) {
+            deleteInput.checked = true;
+        }
+        // Hide the form visually
+        formCard.style.display = 'none';
+    } else {
+        // Otherwise, remove the form completely (new form)
+        formCard.remove();
+
+        // Update total forms count
+        const totalFormsInput = document.querySelector(`input[name="${formsetPrefix}-TOTAL_FORMS"]`);
+        if (totalFormsInput) {
+            totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    attachRemoveListeners();
+});
 </script>
 {% endblock %}

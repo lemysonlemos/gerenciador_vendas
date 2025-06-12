@@ -35,16 +35,6 @@ class Municipio(models.Model):
         db_column='NO_MUNICIPIO',
         max_length=50
     )
-    cnpj = models.CharField(
-        db_column='NU_CNPJ',
-        max_length=18,
-        null=True,
-        blank=True
-    )
-    cod_ibge = models.PositiveIntegerField(
-        db_column='CO_IBGE',
-        unique=True
-    )
     lat = models.DecimalField(
         db_column='CG_LATITUDE',
         max_digits=9,

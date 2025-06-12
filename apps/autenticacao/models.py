@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -21,6 +21,18 @@ def validate_file_extension(value):
 
 def imagem_perfil_path(instance, filename):
     return f'fotos_perfil_gestao/img_{instance.id}_{filename}'
+
+class UsuarioManager(BaseUserManager):
+
+    def create_user(self, username, password=None):
+        usuario = UsuarioBase(username=username)
+        usuario.set_password(password)
+        usuario.save()
+
+    def create_superuser(self, username, password=None):
+        usuario = UsuarioBase(username=username, is_staff=True)
+        usuario.set_password(password)
+        usuario.save()
 
 class UsuarioBase(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
@@ -46,7 +58,7 @@ class UsuarioBase(AbstractBaseUser, PermissionsMixin):
 
     vinculo_login = None
 
-    # objects = UsuarioManager()
+    objects = UsuarioManager()
     #
     # @property
     # def get_vinculo_login(self):
@@ -90,92 +102,26 @@ class UsuarioBase(AbstractBaseUser, PermissionsMixin):
 
 
 class Usuario(BaseModel):
-    SEXO_CHOICES = (
-        ('M', "Masculino"),
-        ('F', "Feminino")
-    )
-
     id = models.AutoField(
         db_column="PK_USUARIO",
         primary_key=True
     )
-    cpf = models.CharField(
-        max_length=11,
-        db_column="CO_CPF",
-        unique=True,
-    )
-    nome = models.CharField(
-        max_length=255,
-        db_column="NO_NOME_COMPLETO"
-    )
-    nome_social = models.CharField(
-        max_length=255,
-        db_column="NO_NOME_SOCIAL",
+    cliente = models.ForeignKey(
+        'cliente.Cliente',
+        on_delete=models.PROTECT,
+        db_column='FK_CLIENTE',
         null=True,
-        blank=True
-    )
-    profissao = models.CharField(
-        max_length=255,
-        db_column="NO_PROFISSAO",
-        null=True,
-        blank=True
-    )
-    sexo = models.CharField(
-        max_length=1,
-        choices=SEXO_CHOICES,
-        db_column="CO_SEXO",
-        null=True,
-        blank=True
-    )
-    data_nascimento = models.DateField(
-        null=True,
-        db_column="DT_NASCIMENTO"
-    )
-    telefone = models.CharField(
-        max_length=15,
-        blank=True,
-        null=True,
-        db_column="NO_TELEFONE"
-    )
-    email = models.EmailField(
-        db_column="NO_EMAIL"
     )
     status = models.BooleanField(
         default=False,
         db_column="NO_STATUS"
     )
-    foto = models.FileField(
-        max_length=200,
-        upload_to=imagem_perfil_path,
-        null=True,
-        blank=True,
-        db_column='NO_FOTO',
-        validators=[validate_file_extension]
-    )
-    pais_origem = models.ForeignKey(
-        'enderecos.Pais',
-        related_name="usuarios_gestao",
-        verbose_name='País de Origem',
-        db_column='FK_PAIS_ORIGEM',
-        on_delete=models.PROTECT,
-        blank=True,
-        null=True
-    )
-    enderecos = models.ManyToManyField(
-        'enderecos.Endereco',
-        through='autenticacao.UsuarioEndereco',
-        related_name='usuario_enderecos'
-    )
-    contatos = models.ManyToManyField(
-        'contatos.Contato',
-        through='autenticacao.UsuarioContato',
-        related_name='usuario_contatos'
-    )
     user = models.OneToOneField(
         'autenticacao.UsuarioBase',
         related_name="usuario",
         on_delete=models.PROTECT,
-        db_column='CO_USER'
+        db_column='FK_USER',
+        null=True,
     )
     historico = HistoricalRecords(
         related_name='historico_usuario'
@@ -183,7 +129,7 @@ class Usuario(BaseModel):
     historico_usuario_api = None
 
     def __str__(self):
-        return f'{self.cpf} - {self.nome}'
+        return f'{self.cliente.cpf} - {self.cliente.nome}'
 
     class Meta:
         verbose_name = 'Usuário'
@@ -198,14 +144,6 @@ class Usuario(BaseModel):
     def _history_user(self, value):
         self.historico_usuario_api = value
 
-    @property
-    def display_name(self):
-        if self.nome_social:
-            return self.nome_social
-        elif len(nome := self.nome.split()) > 1:
-            return f'{nome[0]} {nome[-1]}'
-        else:
-            return self.nome
 
 
 class UsuarioEndereco(models.Model):
