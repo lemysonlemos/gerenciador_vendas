@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Cadastro de Cliente</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Dados Pessoais e Acesso</legend>
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                        {% render_field field|add_class:"form-control is-invalid" %}
+                    {% else %}
+                        {% render_field field|add_class:"form-control" %}
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Contatos</legend>
+            {{ contato_formset.management_form }}
+            <div id="contato-forms-container">
+                {% for cform in contato_formset %}
+                    <div class="card p-3 mb-3">
+                        {% for hidden_field in cform.hidden_fields %}
+                            {{ hidden_field }}
+                        {% endfor %}
+                        {% for field in cform.visible_fields %}
+                            <div class="mb-2">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {% if field.errors %}
+                                    {% render_field field|add_class:"form-control is-invalid" %}
+                                {% else %}
+                                    {% render_field field|add_class:"form-control" %}
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                         {% if cform.instance.pk %}
+                            <div class="form-check form-switch mt-2">
+                                {{ cform.DELETE|attr:"class:form-check-input" }}
+                                <label class="form-check-label" for="{{ cform.DELETE.id_for_label }}">Remover</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-end">
+                <button type="button" class="btn btn-outline-primary" onclick="addForm('{{ contato_formset.prefix }}', 'contato-forms-container', 'contato-empty-form-template')">+ Adicionar Contato</button>
+            </div>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Endereços</legend>
+            {{ endereco_formset.management_form }}
+            <div id="endereco-forms-container">
+                {% for eform in endereco_formset %}
+                    <div class="card p-3 mb-3">
+                        {% for hidden_field in eform.hidden_fields %}
+                            {{ hidden_field }}
+                        {% endfor %}
+                        {% for field in eform.visible_fields %}
+                            <div class="mb-2">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {% if field.errors %}
+                                    {% render_field field|add_class:"form-control is-invalid" %}
+                                {% else %}
+                                    {% render_field field|add_class:"form-control" %}
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% if eform.instance.pk %}
+                            <div class="form-check form-switch mt-2">
+                                {{ eform.DELETE|attr:"class:form-check-input" }}
+                                <label class="form-check-label" for="{{ eform.DELETE.id_for_label }}">Remover</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-end">
+                <button type="button" class="btn btn-outline-primary" onclick="addForm('{{ endereco_formset.prefix }}', 'endereco-forms-container', 'endereco-empty-form-template')">+ Adicionar Endereço</button>
+            </div>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Anexar Documento</legend>
+            {% for field in form_anexo %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                        {% render_field field|add_class:"form-control is-invalid" %}
+                    {% else %}
+                        {% render_field field|add_class:"form-control" %}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="invalid-feedback d-block">{{ field.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </fieldset>
+
+        <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
+    </form>
+
+</div>
+
+{# --- Templates para os formulários vazios --- #}
+
+<template id="contato-empty-form-template">
+    <div class="card p-3 mb-3">
+        {% for hidden_field in contato_formset.empty_form.hidden_fields %}
+            {{ hidden_field }}
+        {% endfor %}
+        {% for field in contato_formset.empty_form.visible_fields %}
+            <div class="mb-2">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {% render_field field|add_class:"form-control" %}
+            </div>
+        {% endfor %}
+        <div class="form-check form-switch mt-2">
+            {{ contato_formset.empty_form.DELETE|attr:"class:form-check-input" }}
+            <label class="form-check-label" for="{{ contato_formset.empty_form.DELETE.id_for_label }}">Remover</label>
+        </div>
+    </div>
+</template>
+
+<template id="endereco-empty-form-template">
+    <div class="card p-3 mb-3">
+        {% for hidden_field in endereco_formset.empty_form.hidden_fields %}
+            {{ hidden_field }}
+        {% endfor %}
+        {% for field in endereco_formset.empty_form.visible_fields %}
+            <div class="mb-2">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {% render_field field|add_class:"form-control" %}
+            </div>
+        {% endfor %}
+        <div class="form-check form-switch mt-2">
+            {{ endereco_formset.empty_form.DELETE|attr:"class:form-check-input" }}
+            <label class="form-check-label" for="{{ endereco_formset.empty_form.DELETE.id_for_label }}">Remover</label>
+        </div>
+    </div>
+</template>
+
+
+<script>
+function addForm(prefix, containerId, emptyFormTemplateId) {
+    const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+    let formCount = parseInt(totalForms.value);
+    const template = document.getElementById(emptyFormTemplateId);
+    const newFormHtml = template.innerHTML.replace(/__prefix__/g, formCount);
+
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('card', 'p-3', 'mb-3');
+    wrapper.innerHTML = newFormHtml;
+
+    document.getElementById(containerId).appendChild(wrapper);
+
+    // Atualiza o TOTAL_FORMS
+    totalForms.value = formCount + 1;
+
+    // Opcional: Reinicializar quaisquer scripts de terceiros ou funcionalidades específicas
+    // que dependam de novos elementos DOM adicionados (por exemplo, seletores de data, etc.)
+}
+</script>
+{% endblock %}

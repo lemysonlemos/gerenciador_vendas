@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Loja de Sapatos{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">Entrar na Conta</h2>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+        {{ form.cpf.label_tag }}<br>
+        {{ form.cpf }}
+        {{ form.cpf.errors }}
+    </div>
+    <div>
+        {{ form.senha.label_tag }}<br>
+        {{ form.senha }}
+        {{ form.senha.errors }}
+    </div>
+    <div>
+        {{ form.captcha }}
+        {{ form.captcha.errors }}
+    </div>
+
+    <button type="submit" style="margin-top: 1rem;">Entrar</button>
+</form>
+
+<p style="text-align: center; margin-top: 1rem;">
+    Não tem uma conta?
+    <a href="{% url 'cliente:cadastro' %}">Cadastre-se aqui</a>
+</p>
+{% endblock %}
