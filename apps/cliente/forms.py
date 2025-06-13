@@ -44,43 +44,6 @@ class ClienteGestaoForm(forms.ModelForm):
         }),
         required=True,
     )
-    uf = forms.ModelChoiceField(
-        label='Estado',
-        queryset=UnidadeFederativa.objects.all().order_by('nome'),
-        widget=s2forms.Select2Widget(
-            attrs={
-                'data-minimum-input-length': 2,
-                'data-selection-css-class': 'form-control'
-            }
-        ),
-        required=False,
-    )
-    pais_origem = forms.ModelChoiceField(
-        label='País de origem',
-        queryset=Pais.objects.all(),
-        widget=s2forms.ModelSelect2Widget(
-            model=Pais,
-            search_fields=['nome__icontains', ],
-            attrs={
-                'data-minimum-input-length': 0,
-                'data-selection-css-class': 'form-control'
-            },
-        ),
-        required=True
-    )
-    naturalidade = forms.ModelChoiceField(
-        label='Naturalidade',
-        queryset=Municipio.objects.all(),
-        widget=s2forms.HeavySelect2Widget(
-            data_url='/enderecos/data-view/buscar-municipio/?as_dict=true',
-            dependent_fields={'uf': 'uf'},
-            attrs={
-                'data-minimum-input-length': 1,
-                'data-selection-css-class': 'form-control'
-            },
-        ),
-        required=False
-    )
     raca = forms.ChoiceField(
         label='Raça/Cor',
         choices=Cliente.RACA_CHOICES,
@@ -116,7 +79,7 @@ class ClienteGestaoForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = [
-            'cpf', 'passaporte', 'nome_completo', 'nome_social', 'pais_origem', 'uf', 'naturalidade', 'nome_mae',
+            'cpf', 'nome_completo', 'nome_social', 'nome_mae',
             'sexo', 'raca', 'data_nascimento', 'profissao',
         ]
 
@@ -124,11 +87,6 @@ class ClienteGestaoForm(forms.ModelForm):
         self.visualizar = kwargs.pop('visualizar', None)
         self.eh_edicao = kwargs.pop('eh_edicao', False)
         super().__init__(*args, **kwargs)
-
-        if 'naturalidade' in self.initial and self.initial['naturalidade']:
-            naturalidade_id = self.initial['naturalidade']
-            municipio = Municipio.objects.get(id=naturalidade_id)
-            self.fields['uf'].initial = municipio.uf
 
         if self.visualizar:
             for field in self.fields:
@@ -155,36 +113,19 @@ class ClienteGestaoForm(forms.ModelForm):
             raise forms.ValidationError("A data de nascimento não é válida.")
         return data_nascimento
 
-    def clean_naturalidade(self):
-        pais_origem = self.cleaned_data['pais_origem']
-        naturalidade = self.cleaned_data['naturalidade']
-
-        if pais_origem.id == 29 and not naturalidade:
-            raise forms.ValidationError("A naturalidade é obrigatória para cidadãos brasileiros.")
-        return naturalidade
-
     def clean(self):
         cpf = self.cleaned_data.get('cpf')
-        passaporte = self.cleaned_data.get('passaporte')
-        if not cpf  and not passaporte:
-            mensagem = "Informe ao menos um dos seguintes documentos: CPF ou Passaporte."
+        if not cpf:
+            mensagem = "Informe o CPF."
             self.add_error('cpf', mensagem)
-            self.add_error('passaporte', mensagem)
 
 
 class ClienteForm(ClienteGestaoForm):
     class Meta:
         model = Cliente
-        fields = ClienteGestaoForm.Meta.fields + ['passaporte', 'foto']
+        fields = ClienteGestaoForm.Meta.fields
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.fields['cpf'].widget.attrs["readonly"] = True
-            self.fields['nome_completo'].widget.attrs["readonly"] = True
-            self.fields['nome_mae'].widget.attrs["readonly"] = True
-            self.fields['data_nascimento'].widget.attrs["readonly"] = True
-            self.fields['sexo'].widget.attrs["readonly"] = True
+
 
 
 class AnexoClienteForm(forms.ModelForm):
@@ -256,7 +197,7 @@ class CadastrarClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = [
-            'foto', 'nome_completo', 'nome_social', 'data_nascimento',
+            'nome_completo', 'nome_social', 'data_nascimento',
             'sexo', 'raca',  'profissao',]
         widgets = {
             'data_nascimento': forms.DateInput(attrs={

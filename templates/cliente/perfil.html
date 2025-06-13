@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Editar Perfil - LemyWalk{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-4 text-center">Editar Perfil</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Dados Pessoais</strong>
+            </div>
+            <div class="card-body">
+                {{ form_cliente.non_field_errors }}
+                {% for field in form_cliente %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Contatos</strong>
+            </div>
+            <div class="card-body">
+                {{ formset_contato.management_form }}
+                <div id="contato-forms-container">
+                    {% for form in formset_contato %}
+                        <div class="border p-3 mb-3 rounded bg-light">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            {% for field in form.visible_fields %}
+                                <div class="mb-2">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            {% if form.can_delete %}
+                                <div class="text-end mt-2">
+                                    {{ form.DELETE }}
+                                    <button type="button" class="btn btn-danger btn-sm delete-form-btn">
+                                        <i class="bi bi-trash"></i> Remover
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-none contato-form-empty">
+                    <div class="border p-3 mb-3 rounded bg-light">
+                        {% for field in formset_contato.empty_form.visible_fields %}
+                            <div class="mb-2">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-contato-form">
+                <i class="bi bi-plus-circle"></i> Adicionar Contato
+            </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Endereços</strong>
+            </div>
+            <div class="card-body">
+                {{ formset_endereco.management_form }}
+                <div id="endereco-forms-container">
+                    {% for form in formset_endereco %}
+                        <div class="border p-3 mb-3 rounded bg-light">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            {% for field in form.visible_fields %}
+                                <div class="mb-2">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            {% if form.can_delete %}
+                                <div class="text-end mt-2">
+                                    {{ form.DELETE }}
+                                    <button type="button" class="btn btn-danger btn-sm delete-form-btn">
+                                        <i class="bi bi-trash"></i> Remover
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-none endereco-form-empty">
+                    <div class="border p-3 mb-3 rounded bg-light">
+                        {% for field in formset_endereco.empty_form.visible_fields %}
+                            <div class="mb-2">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-endereco-form">
+                <i class="bi bi-plus-circle"></i> Adicionar Endereço
+            </button>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-save"></i> Salvar Alterações
+            </button>
+            <a href="{% url 'cliente:painel' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Scripts para adicionar dinamicamente formulários -->
+<script>
+function cloneForm(prefix) {
+    const totalForms = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+    const formCount = parseInt(totalForms.value);
+    const emptyForm = document.querySelector(`.${prefix}-form-empty`).innerHTML;
+    const newFormHtml = emptyForm.replace(/__prefix__/g, formCount);
+
+    const newForm = document.createElement('div');
+    newForm.classList.add('border', 'p-3', 'mb-3', 'rounded', 'bg-light');
+    newForm.innerHTML = newFormHtml;
+
+    document.getElementById(`${prefix}-forms-container`).appendChild(newForm);
+    totalForms.value = formCount + 1;
+}
+
+document.getElementById('add-contato-form')?.addEventListener('click', function() {
+    cloneForm('contato');
+});
+
+document.getElementById('add-endereco-form')?.addEventListener('click', function() {
+    cloneForm('endereco');
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-form-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.closest('.border');
+            const deleteInput = container.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (deleteInput) {
+                deleteInput.checked = true;
+                container.style.display = 'none';  // Esconde visualmente
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

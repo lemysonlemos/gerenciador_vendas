@@ -7,15 +7,19 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.utils import safestring
 from django.urls import reverse_lazy, reverse
+from django.utils.safestring import mark_safe
 
 from apps import cliente
 from apps.autenticacao.models import UsuarioBase
-from apps.cliente.domain import salvar_cliente_com_formsets
-from apps.cliente.forms import CadastrarClienteForm, AnexoClienteForm, CpfForm
+from apps.base.formsets import FormSetFactory
+from apps.cliente.dataclasses import DadosClienteDTO
+from apps.cliente.domain import ClienteDomain
+from apps.cliente.exceptions import ClienteErroGenericoException
+from apps.cliente.forms import CadastrarClienteForm, AnexoClienteForm, CpfForm, ClienteForm
 from apps.cliente.models import Cliente, ClienteEndereco, ClienteContato
-from apps.contatos.forms import ContatoFormSet
+from apps.contatos.forms import ContatoFormSet, ContatoForm
 from apps.contatos.models import Contato
-from apps.enderecos.forms import EnderecoFormSet
+from apps.enderecos.forms import EnderecoFormSet, EnderecoForm
 from apps.enderecos.models import Endereco
 
 
@@ -77,14 +81,66 @@ def cadastro(request):
 
 @login_required(login_url=reverse_lazy('autenticacao:login'))
 def painel(request):
-    request.session["contexto"] = 'cliente'
 
-    return render(request, 'cliente/painel.html')
+    cliente = ClienteDomain.insstance_by_cliente(request.user.cliente.id)
+
+    context = {
+        'cliente_nome': cliente.cliente.nome_completo,
+    }
+    return render(request, 'cliente/painel.html', context)
 
 
 @login_required(login_url=reverse_lazy('autenticacao:login'))
 def perfil(request):
-    request.session["contexto"] = 'cliente'
+    domain = ClienteDomain(request.user.cliente)
 
-    return render(request, 'cliente/perfil.html')
+    form_cliente = ClienteForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=domain.cliente
+    )
+    formset_contato = FormSetFactory(
+        request.POST or None,
+        model=Contato,
+        prefix='contato',
+        form=ContatoForm, queryset=domain.get_contatos_cliente(), extra=1, min_num=0,
+        max_num=3, validate_min=True, can_delete=True
+    ).get_formset()
+    formset_endereco = FormSetFactory(
+        request.POST or None, model=Endereco, prefix='endereco',
+        form=EnderecoForm, queryset=domain.get_enderecos_cliente(), extra=0, min_num=1,
+        max_num=3, validate_min=True, can_delete=True
+    ).get_formset()
+
+    if request.POST:
+        try:
+            if all([form_cliente.is_valid() and formset_contato.is_valid() and formset_endereco.is_valid()]):
+                cliente = form_cliente.save(commit=False)
+                enderecos = formset_endereco.save(commit=False)
+                enderecos_delete = formset_endereco.deleted_objects
+                contatos = formset_contato.save(commit=False)
+                contatos_delete = formset_contato.deleted_objects
+                dados_cliente = DadosClienteDTO(
+                    enderecos=enderecos,
+                    contatos=contatos,
+                    request=request,
+                    enderecos_delete=enderecos_delete,
+                    contatos_delete=contatos_delete
+                )
+                domain = ClienteDomain(
+                    cliente=cliente,
+                )
+                domain.editar(dados_cliente)
+                messages.success(request, mark_safe('Perfil atualizado com sucesso.'))
+                return redirect('cliente:painel')
+            else:
+                raise ClienteErroGenericoException()
+        except Exception as e:
+            messages.error(request, mark_safe(str(e)))
+    context = {
+        'form_cliente': form_cliente,
+        'formset_contato': formset_contato,
+        'formset_endereco': formset_endereco,
+    }
+    return render(request, 'cliente/perfil.html', context)
 

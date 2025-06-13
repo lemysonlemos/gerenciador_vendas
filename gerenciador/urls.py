@@ -16,7 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from apps.autenticacao.views import inicio
+
 urlpatterns = [
+    path('', inicio, name='inicio'),
     path('admin/', admin.site.urls),
     path('cliente/', include('apps.cliente.urls', namespace='cliente')),
     path('base/', include('apps.base.urls', namespace='base')),
@@ -24,4 +27,5 @@ urlpatterns = [
     path('enderecos/', include('apps.enderecos.urls', namespace='enderecos')),
     path('autenticacao/', include('apps.autenticacao.urls', namespace='autenticacao')),
     path('estoques/', include('apps.estoques.urls', namespace='estoques')),
+    path('catalogo/', include('apps.catalogo.urls', namespace='catalogo')),
 ]

@@ -6,6 +6,10 @@ from django.urls import reverse_lazy
 
 from .forms import LoginForm
 
+
+def inicio(request):
+    return render(request, 'autenticacao/inicio.html')
+
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)

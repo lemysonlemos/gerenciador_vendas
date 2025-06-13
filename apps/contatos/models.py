@@ -58,10 +58,3 @@ class Contato(BaseModel):
 
     def __str__(self):
         return f"{self.tipo_contato.nome} : {self.contato}"
-
-    # def save(self, *args, **kwargs):
-    #     if self.tipo_contato.expressao_validacao:
-    #         regex = re.compile(self.tipo_contato.expressao_validacao)
-    #         if not regex.match(self.contato):
-    #             raise ContatoRegexException()
-    #     super().save(*args, **kwargs)
