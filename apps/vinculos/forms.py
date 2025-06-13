@@ -19,13 +19,10 @@ class VinculoForm(forms.ModelForm):
 
     loja = forms.ModelChoiceField(
         queryset=Loja.objects.all().order_by('id'),
-        label='Unidade da Cadeia de Frio',
-        widget=s2forms.ModelSelect2Widget(
-            queryset=Loja.objects.all(),
-            search_fields=['nome__icontains'],
+        label='Loja',
+        widget=forms.Select(
             attrs={
                 'class': 'form-control',
-                'data-minimum-input-length': 0
             }
         )
     )

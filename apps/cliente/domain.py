@@ -23,6 +23,10 @@ class ClienteDomain:
         cliente = Cliente.objects.get(id=id_cliente)
         return ClienteDomain(cliente=cliente)
 
+    @staticmethod
+    def get_busca_cpf(cpf):
+        return Cliente.objects.filter(cpf=cpf).first()
+
 
     def get_contatos_cliente(self):
         return self.cliente.contatos.all()

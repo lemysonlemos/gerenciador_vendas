@@ -28,5 +28,23 @@ def login(request):
     return render(request, 'autenticacao/login.html', {'form': form})
 
 
+def login_funcionario(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cpf = form.cleaned_data['cpf']
+            senha = form.cleaned_data['senha']
+            user = authenticate(request, username=f"{cpf}_cliente", password=senha)
+            if user is not None and user.is_active:
+                auth_login(request, user)
+                return redirect('estoques:menus')
+            else:
+                messages.error(request, 'CPF ou senha inválidos.')
+    else:
+        form = LoginForm()
+
+    return render(request, 'autenticacao/login_funcionario.html', {'form': form})
+
+
 
 

@@ -8,5 +8,4 @@ class ClienteManager(SoftDeleteManager):
             'endereco',
             'contato',
             'user',
-            'pais_origem'
         )

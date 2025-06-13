@@ -20,6 +20,7 @@ from apps.autenticacao.views import inicio
 
 urlpatterns = [
     path('', inicio, name='inicio'),
+    path('select2/', include('django_select2.urls')),
     path('admin/', admin.site.urls),
     path('cliente/', include('apps.cliente.urls', namespace='cliente')),
     path('base/', include('apps.base.urls', namespace='base')),
@@ -28,4 +29,6 @@ urlpatterns = [
     path('autenticacao/', include('apps.autenticacao.urls', namespace='autenticacao')),
     path('estoques/', include('apps.estoques.urls', namespace='estoques')),
     path('catalogo/', include('apps.catalogo.urls', namespace='catalogo')),
+
+    path('vinculos/', include('apps.vinculos.urls', namespace='vinculos')),
 ]

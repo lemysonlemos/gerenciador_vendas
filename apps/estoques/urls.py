@@ -1,3 +1,9 @@
+from apps.estoques.view import menus
+
 app_name = 'estoques'
 
-urlpatterns = []
+from django.urls import path
+
+urlpatterns = [
+    path('menus/', menus, name='menus'),
+]

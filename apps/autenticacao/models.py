@@ -166,7 +166,7 @@ class UsuarioEndereco(models.Model):
         db_table = 'TB_USUARIO_ENDERECO'
 
     def __str__(self):
-        return f"{self.usuario.nome} - {self.endereco}"
+        return f"{self.usuario.cliente.nome_completo} - {self.endereco}"
 
 
 class UsuarioContato(models.Model):
@@ -189,7 +189,7 @@ class UsuarioContato(models.Model):
         db_table = 'TB_USUARIO_CONTATO'
 
     def __str__(self):
-        return f"{self.usuario.nome} - {self.contato}"
+        return f"{self.usuario.cliente.nome_completo} - {self.contato}"
 
 
 class Modulo(BaseModel):

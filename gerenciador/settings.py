@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_recaptcha',
+    'django_select2',
     'widget_tweaks',
     'apps.cliente',
     'apps.base',

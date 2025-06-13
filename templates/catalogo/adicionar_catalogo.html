@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Adicionar Item ao Catálogo</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- Item -->
+        <fieldset class="border p-3 rounded mb-4">
+            <legend class="w-auto px-2">Informações do Item</legend>
+            {{ item_form.as_p }}
+        </fieldset>
+
+        <!-- Fabricantes -->
+        <fieldset class="border p-3 rounded mb-4">
+            <legend class="w-auto px-2">Fabricantes</legend>
+            {{ formset.management_form }}
+            <div id="fabricante-formset">
+                {% for form in formset %}
+                    <div class="border p-2 mb-2 fabricante-form">
+                        {{ form.as_p }}
+                        {% if form.instance.pk %}
+                            <input type="checkbox" name="{{ form.prefix }}-DELETE" id="{{ form.prefix }}-DELETE">
+                            <label for="{{ form.prefix }}-DELETE">Remover</label>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Formulário vazio (template) -->
+            <div id="empty-form" class="d-none">
+                <div class="border p-2 mb-2 fabricante-form">
+                    {{ formset.empty_form.as_p|safe }}
+                </div>
+            </div>
+
+            <!-- Botão Adicionar Fabricante -->
+            <button type="button" class="btn btn-outline-success mt-2" id="add-fabricante">
+                + Adicionar Fabricante
+            </button>
+        </fieldset>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'catalogo:listar_catalogo_gestao' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Script para adicionar novo fabricante -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const addButton = document.getElementById("add-fabricante");
+        const formsetDiv = document.getElementById("fabricante-formset");
+        const emptyFormDiv = document.getElementById("empty-form").innerHTML;
+        const totalFormsInput = document.querySelector("#id_{{ formset.prefix }}-TOTAL_FORMS");
+
+        addButton.addEventListener("click", () => {
+            const formIndex = parseInt(totalFormsInput.value);
+            const newFormHtml = emptyFormDiv.replace(/__prefix__/g, formIndex);
+            formsetDiv.insertAdjacentHTML("beforeend", newFormHtml);
+            totalFormsInput.value = formIndex + 1;
+        });
+    });
+</script>
+{% endblock %}
