@@ -31,4 +31,6 @@ urlpatterns = [
     path('catalogo/', include('apps.catalogo.urls', namespace='catalogo')),
 
     path('vinculos/', include('apps.vinculos.urls', namespace='vinculos')),
+
+    path('lojas/', include('apps.lojas.urls', namespace='lojas')),
 ]

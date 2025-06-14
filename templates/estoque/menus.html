@@ -6,8 +6,10 @@
     <div class="d-grid gap-3 col-6 mx-auto mt-4">
 
         <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-primary btn-lg">Estoque</a>
+
+        <a href="{% url 'lojas:listar_lojas' %}" class="btn btn-primary btn-lg">Lojas</a>
 {##}
-{#        <a href="{% url 'vinculos:informar_cpf' %}" class="btn btn-primary btn-lg">Vínculo</a>#}
+        <a href="{% url 'vinculos:listar_vinculos' %}" class="btn btn-primary btn-lg">Vínculo</a>
 {##}
         <a href="{% url 'cliente:listar_clientes_gestao' %}" class="btn btn-primary btn-lg">Clientes</a>
 {##}

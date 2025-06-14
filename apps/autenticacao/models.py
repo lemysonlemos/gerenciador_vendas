@@ -129,7 +129,7 @@ class Usuario(BaseModel):
     historico_usuario_api = None
 
     def __str__(self):
-        return f'{self.cliente.cpf} - {self.cliente.nome}'
+        return f'{self.cliente.cpf} - {self.cliente.nome_completo}'
 
     class Meta:
         verbose_name = 'Usuário'

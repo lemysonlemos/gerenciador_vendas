@@ -7,18 +7,15 @@ from apps.base.models import BaseModel
 class Vinculo(BaseModel):
 
     class StatusVinculo(models.IntegerChoices):
-        AGUARDANDO = 0
-        AUTORIZADO = 1
-        INATIVO = 2
+        ATIVO = 0
+        INATIVO = 1
 
-    AGUARDANDO = "Aguardando Homologação"
-    AUTORIZADO = "Vínculo Autorizado"
+    ATIVO = "Vínculo Ativo"
     INATIVO = "Vínculo Inativo"
 
     STATUS_CHOICES = (
-        (0, AGUARDANDO),
-        (1, AUTORIZADO),
-        (2, INATIVO),
+        (0, ATIVO),
+        (1, INATIVO),
     )
     class PerfilVinculo(models.IntegerChoices):
         ADMIN = 0

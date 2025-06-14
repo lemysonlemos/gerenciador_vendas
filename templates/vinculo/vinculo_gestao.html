@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ titulo }}</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_usuario" class="form-label">Usuário</label>
+            {{ form.usuario }}
+        </div>
+        <div class="mb-3">
+            <label for="id_loja" class="form-label">Loja</label>
+            {{ form.loja }}
+        </div>
+        <div class="mb-3">
+            <label for="id_status" class="form-label">Status</label>
+            {{ form.status }}
+        </div>
+        <div class="mb-3">
+            <label for="id_perfil" class="form-label">Perfil</label>
+            {{ form.perfil }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'vinculos:listar_vinculos' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

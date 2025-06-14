@@ -9,45 +9,67 @@ from apps.cliente.forms import CadastrarClienteForm, ClienteForm, CpfForm
 from apps.vinculos.domain import VinculoDomain
 from apps.vinculos.exception import VinculoErroGenericoException
 from apps.vinculos.forms import VinculoForm
+from apps.vinculos.models import Vinculo
 
 
-def informar_cpf(request):
-    if request.POST:
-        form = CpfForm(request.POST or None)
-        if form.is_valid():
-            cpf = form.cleaned_data['cpf']
-            cliente = ClienteDomain.get_busca_cpf(cpf)
-            if cliente:
-                return redirect('vinculos:novo', id_cliente=cliente.id)
-            else:
-                return redirect('cliente:cadastro')
-    else:
-        form = CpfForm()
+def listar_vinculos(request):
+    cpf = request.GET.get('cpf', '').strip()
+    nome = request.GET.get('nome', '').strip()
+    loja = request.GET.get('loja', '').strip()
+    perfil = request.GET.get('perfil', '').strip()
+    status = request.GET.get('status', '').strip()
+
+    vinculos = Vinculo.objects.select_related('usuario__cliente', 'loja').all()
+
+    if cpf:
+        vinculos = vinculos.filter(usuario__cliente__cpf__icontains=cpf)
+    if nome:
+        vinculos = vinculos.filter(usuario__cliente__nome_completo__icontains=nome)
+    if loja:
+        vinculos = vinculos.filter(loja__nome__icontains=loja)
+    if perfil != '':
+        vinculos = vinculos.filter(perfil=perfil)
+    if status != '':
+        vinculos = vinculos.filter(status=status)
+
     context = {
-        'form': form,
+        'vinculos': vinculos,
+        'filtro_cpf': cpf,
+        'filtro_nome': nome,
+        'filtro_loja': loja,
+        'filtro_perfil': perfil,
+        'filtro_status': status,
+        'perfil_choices': Vinculo.StatusVinculo.choices,  # para mostrar no select
+        'status_choices': Vinculo.PerfilVinculo.choices,
+        'status_choices_full': Vinculo.STATUS_CHOICES,
+        'perfil_choices_full': Vinculo.STATUS_PERFIL,
     }
-    return render(request,'vinculo/informar_cpf.html', context)
-def novo(request, id_cliente):
+    return render(request, 'vinculo/listar_vinculos.html', context)
 
-    if request.POST:
-        form = VinculoForm(request.POST or None)
-        try:
-            if form.is_valid():
-                vinculo = form.save(commit=False)
-                vinculo_domain = VinculoDomain(vinculo=vinculo)
-                user = vinculo_domain.get_usuario(id_cliente)
-                vinculo_domain.salvar(user)
-                messages.success(request, mark_safe("Vínculo registrado com sucesso. Aguarde a homologação."))
-                return redirect('autenticacao:login_funcionario')
-            else:
-                raise VinculoErroGenericoException()
-        except Exception as e:
-            messages.error(request, mark_safe(str(e)))
+
+def adicionar_vinculo(request):
+    if request.method == 'POST':
+        form = VinculoForm(request.POST)
+        if form.is_valid():
+            vinculo = form.save()
+            messages.success(request, 'Vínculo adicionado com sucesso.')
+            return redirect('vinculos:listar_vinculos')
     else:
         form = VinculoForm()
 
-    context = {
-        'form': form,
-    }
+    return render(request, 'vinculo/vinculo_gestao.html', {'form': form, 'titulo': 'Adicionar Vínculo'})
 
-    return render(request,'vinculo/novo.html', context)
+def editar_vinculo(request, vinculo_id):
+    domain = VinculoDomain.new_instance_by_id(vinculo_id)
+    vinculo = domain.get_vinculo()
+
+    if request.method == 'POST':
+        form = VinculoForm(request.POST, instance=vinculo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Vínculo atualizado com sucesso.')
+            return redirect('vinculos:listar_vinculos')
+    else:
+        form = VinculoForm(instance=vinculo)
+
+    return render(request, 'vinculo/vinculo_gestao.html', {'form': form, 'titulo': 'Editar Vínculo'})

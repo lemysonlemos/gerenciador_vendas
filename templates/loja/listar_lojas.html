@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Lojas</h2>
+
+    <!-- Botão Adicionar Loja -->
+    <div class="mb-3">
+        <a href="{% url 'lojas:adicionar_loja' %}" class="btn btn-success">Adicionar Loja</a>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" class="mb-4 row g-2">
+        <div class="col-md-4">
+            <input type="text" name="nome" class="form-control" placeholder="Nome da loja" value="{{ filtro_nome }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">Todos os status</option>
+                <option value="ativo" {% if filtro_status == 'ativo' %}selected{% endif %}>Ativo</option>
+                <option value="inativo" {% if filtro_status == 'inativo' %}selected{% endif %}>Inativo</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- Tabela de Lojas -->
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Endereço</th>
+                <th>Contatos</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loja in lojas %}
+                <tr>
+                    <td>{{ loja.id }}</td>
+                    <td>{{ loja.nome }}</td>
+                    <td>
+                        {% if loja.status %}
+                            <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ loja.endereco }}</td>
+                    <td>
+                        {% with contatos=loja.contatos.all %}
+                            {% if contatos %}
+                                {{ contatos|join:", " }}
+                            {% else %}
+                                <em>Sem contato</em>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <a href="{% url 'lojas:editar_loja' loja.id %}" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhuma loja encontrada.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'estoques:menus' %}" class="btn btn-outline-secondary">Voltar</a>
+</div>
+{% endblock %}

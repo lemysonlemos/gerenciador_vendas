@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Vínculos</h2>
+
+    <!-- Botão Adicionar -->
+    <div class="mb-3">
+        <a href="{% url 'vinculos:adicionar_vinculo' %}" class="btn btn-success">Adicionar Vínculo</a>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" class="mb-4 row g-2">
+        <div class="col-md-2">
+            <input type="text" name="cpf" class="form-control" placeholder="CPF" value="{{ filtro_cpf }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="nome" class="form-control" placeholder="Nome" value="{{ filtro_nome }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="loja" class="form-control" placeholder="Loja" value="{{ filtro_loja }}">
+        </div>
+        <div class="col-md-2">
+            <select name="perfil" class="form-select">
+                <option value="">Todos os Perfis</option>
+                {% for val, label in perfil_choices_full %}
+                    <option value="{{ val }}" {% if filtro_perfil|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Todos os Status</option>
+                {% for val, label in status_choices_full %}
+                    <option value="{{ val }}" {% if filtro_status|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 mt-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>CPF</th>
+                <th>Nome</th>
+                <th>Loja</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vinculo in vinculos %}
+            <tr>
+                <td>{{ vinculo.usuario.cliente.cpf }}</td>
+                <td>{{ vinculo.usuario.cliente.nome_completo }}</td>
+                <td>{{ vinculo.loja.nome }}</td>
+                <td>
+                    {% for val, label in perfil_choices_full %}
+                        {% if val == vinculo.perfil %}
+                            {{ label }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for val, label in status_choices_full %}
+                        {% if val == vinculo.status %}
+                            {{ label }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="{% url 'vinculos:editar_vinculo' vinculo.id %}" class="btn btn-sm btn-warning">Editar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Nenhum vínculo encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'estoques:menus' %}" class="btn btn-outline-secondary">Voltar</a>
+</div>
+{% endblock %}
