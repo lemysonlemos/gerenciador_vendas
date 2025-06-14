@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Adicionar Estoque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Adicionar Estoque</h2>
+
+    <form method="post" novalidate id="estoque-formset-form">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div id="formset-container">
+            {% for form in formset %}
+            <div class="formset-item mb-3 rounded">
+                <div class="mb-2">
+                    {{ form.qtd_estoque.label_tag }}<br>
+                    {{ form.qtd_estoque }}
+                </div>
+                <div class="mb-2">
+                    {{ form.catalogo.label_tag }}<br>
+                    {{ form.catalogo }}
+                </div>
+                <div class="mb-2">
+                    {{ form.loja.label_tag }}<br>
+                    {{ form.loja }}
+                </div>
+                <div class="mb-2">
+                    {{ form.descricao.label_tag }}<br>
+                    {{ form.descricao }}
+                </div>
+                {% if formset.can_delete %}
+                <div>
+                    <button type="button" class="btn delete-btn" title="Apagar">
+                        🗑️
+                    </button>
+                    {{ form.DELETE }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-secondary mb-3" id="add-form">Adicionar Estoque +</button><br>
+
+        <button type="submit" class="btn btn-success">Salvar Estoque</button>
+        <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    function addDeleteButtonListener(btn) {
+        btn.addEventListener('click', function() {
+            const formsetItem = btn.closest('.formset-item');
+            if (!formsetItem) return;
+
+            const deleteCheckbox = formsetItem.querySelector('input[type="checkbox"][name$="DELETE"]');
+            if(deleteCheckbox) {
+                deleteCheckbox.checked = true;
+            }
+
+            formsetItem.style.display = 'none';
+        });
+    }
+
+    // Adiciona listener para todos os botões existentes
+    document.querySelectorAll('.delete-btn').forEach(function(btn) {
+        addDeleteButtonListener(btn);
+    });
+
+    // Função para adicionar um formulário vazio novo
+    document.getElementById('add-form').addEventListener('click', function() {
+        const container = document.getElementById('formset-container');
+        const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+        const currentFormCount = parseInt(totalFormsInput.value);
+
+        // Clona o último formset-item
+        const lastItem = container.querySelector('.formset-item:last-of-type');
+        if (!lastItem) {
+            alert("Nenhum formulário para clonar.");
+            return;
+        }
+
+        let newItem = lastItem.cloneNode(true);
+
+        // Atualiza os atributos do form (ids, names) e limpa valores
+        newItem.querySelectorAll('input, select, textarea').forEach(function(input) {
+            if(input.name) {
+                input.name = input.name.replace(/form-(\d+)-/, `form-${currentFormCount}-`);
+            }
+            if(input.id) {
+                input.id = input.id.replace(/form-(\d+)-/, `form-${currentFormCount}-`);
+            }
+
+            if(input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // Garante que o campo DELETE está desmarcado
+        const deleteInput = newItem.querySelector('input[type="checkbox"][name$="DELETE"]');
+        if(deleteInput) {
+            deleteInput.checked = false;
+        }
+
+        // Mostra o formulário (no caso do clone estar oculto)
+        newItem.style.display = '';
+
+        // Adiciona o novo item no container
+        container.appendChild(newItem);
+
+        // Incrementa TOTAL_FORMS
+        totalFormsInput.value = currentFormCount + 1;
+
+        // Adiciona listener no botão delete do novo item
+        const deleteBtn = newItem.querySelector('.delete-btn');
+        if(deleteBtn){
+            addDeleteButtonListener(deleteBtn);
+        }
+    });
+</script>
+
+<style>
+    textarea {
+        height: 40px !important; /* Reduz altura da descrição */
+        resize: vertical;
+    }
+
+    /* Remove caixa/borda da div formset-item */
+    .formset-item {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    /* Botão de lixeira estilizado */
+    .delete-btn {
+        background-color: #ffe6e6; /* vermelho claro */
+        border: none;
+        color: #b30000; /* vermelho escuro */
+        cursor: pointer;
+        font-size: 1.3rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+        user-select: none;
+    }
+
+    .delete-btn:hover {
+        background-color: #ffcccc; /* vermelho claro mais forte no hover */
+        color: #800000;
+    }
+
+    .delete-btn:focus {
+        outline: none;
+        box-shadow: 0 0 3px 2px rgba(179, 0, 0, 0.6);
+    }
+</style>
+
+{% endblock %}

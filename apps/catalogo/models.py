@@ -121,7 +121,7 @@ class ItemFabricante(BaseModel):
         unique_together = ('item', 'fabricante')
 
     def __str__(self):
-        return f'{self.item.nome} - {self.fabricante.nome}'
+        return f'{self.item.nome} - {self.fabricante.nome} - {self.tamanho_calcado} - {self.preco}'
 
     def save(self, *args, **kwargs):
         if self.item and self.item.nome:

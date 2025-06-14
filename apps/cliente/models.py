@@ -119,13 +119,6 @@ class Cliente(BaseModelDeleteLogico):
         db_column='FK_USUARIO_BASE',
         on_delete=models.PROTECT
     )
-    # cadastrador = models.ForeignKey(
-    #     "vinculos.Vinculo",
-    #     related_name="cidadaos",
-    #     db_column='FK_CADASTRADOR',
-    #     null=True,
-    #     on_delete=models.PROTECT
-    # )
     passaporte = models.CharField(
         max_length=8,
         db_column='NO_PASSAPORTE',

@@ -2,9 +2,10 @@ from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-from apps.catalogo.domain import ItemDomain
-from apps.catalogo.forms import ItemForm, ItemFabricanteFormSet
-from apps.catalogo.models import Item, ItemFabricante
+from apps.catalogo.domain import ItemDomain, ItemFabricanteDomain
+from apps.catalogo.forms import ItemForm, ItemFabricanteFormSet, ItemFabricanteForm, ItemFormSet, FabricanteFormSet, \
+    FabricanteForm
+from apps.catalogo.models import Item, ItemFabricante, Fabricante
 
 
 def listar_catalogo(request):
@@ -119,25 +120,134 @@ def listar_catalogo_gestao(request):
 
 def adicionar_catalogo(request):
     if request.method == 'POST':
-        item_form = ItemForm(request.POST)
         formset = ItemFabricanteFormSet(request.POST)
 
-        if item_form.is_valid() and formset.is_valid():
+        if formset.is_valid():
             try:
                 with transaction.atomic():
-                    item = item_form.save()
-                    formset.instance = item
                     formset.save()
                     messages.success(request, "Item e fabricantes adicionados com sucesso.")
                     return redirect('catalogo:listar_catalogo_gestao')
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao salvar: {e}")
     else:
-        item_form = ItemForm()
-        formset = ItemFabricanteFormSet()
+        formset = ItemFabricanteFormSet(queryset=ItemFabricante.objects.none())
 
     context = {
-        'item_form': item_form,
         'formset': formset,
     }
     return render(request, 'catalogo/adicionar_catalogo.html', context)
+
+
+def editar_catalogo(request, id_item_fabricante):
+
+    domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)
+    queryset = domain.get_item_fabricante()
+
+    if request.method == 'POST':
+        form = ItemFabricanteForm(request.POST, instance=queryset)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    form.save()
+                    messages.success(request, "Item e fabricantes adicionados com sucesso.")
+                    return redirect('catalogo:listar_catalogo_gestao')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
+    else:
+        form = ItemFabricanteForm(instance=queryset)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'catalogo/editar_catalogo.html', context)
+
+
+def adicionar_item(request):
+    if request.method == 'POST':
+        formset = ItemFormSet(request.POST)
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    formset.save()
+                    messages.success(request, "Item com sucesso.")
+                    return redirect('catalogo:listar_catalogo_gestao')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
+    else:
+        formset = ItemFormSet(queryset=Item.objects.none())
+
+    context = {
+        'formset': formset,
+    }
+    return render(request, 'catalogo/adicionar_item.html', context)
+
+
+def editar_item(request, id_item_fabricante):
+
+    domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)
+    queryset = domain.get_item()
+
+    if request.method == 'POST':
+        form = ItemForm(request.POST, instance=queryset)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    form.save()
+                    messages.success(request, "Item e fabricantes adicionados com sucesso.")
+                    return redirect('catalogo:listar_catalogo_gestao')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
+    else:
+        form = ItemForm(instance=queryset)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'catalogo/editar_item.html', context)
+
+
+def adicionar_fabricante(request):
+    if request.method == 'POST':
+        formset = FabricanteFormSet(request.POST)
+
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    formset.save()
+                    messages.success(request, "Fabricantes adicionados com sucesso.")
+                    return redirect('catalogo:listar_catalogo_gestao')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
+    else:
+        formset = FabricanteFormSet(queryset=Fabricante.objects.none())
+
+    context = {
+        'formset': formset,
+    }
+    return render(request, 'catalogo/adicionar_fabricante.html', context)
+
+
+def editar_fabricante(request, id_item_fabricante):
+
+    domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)
+    queryset = domain.get_fabricante()
+
+    if request.method == 'POST':
+        form = FabricanteForm(request.POST, instance=queryset)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    form.save()
+                    messages.success(request, "Item e fabricantes adicionados com sucesso.")
+                    return redirect('catalogo:listar_catalogo_gestao')
+            except Exception as e:
+                messages.error(request, f"Ocorreu um erro ao salvar: {e}")
+    else:
+        form = FabricanteForm(instance=queryset)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'catalogo/editar_fabricante.html', context)

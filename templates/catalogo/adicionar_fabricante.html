@@ -2,48 +2,46 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4">Adicionar Item ao Catálogo</h2>
+    <h2 class="mb-4">Adicionar Fabricante</h2>
 
     <form method="post" novalidate>
         {% csrf_token %}
+        {{ formset.management_form }}
 
-        <!-- ItemFabricantes -->
         <fieldset class="border p-3 rounded mb-4">
-            <legend class="w-auto px-2">Informações do Fabricante</legend>
-            <div class="row">
-            {{ formset.management_form }}
-            <div id="fabricante-formset">
+            <legend class="w-auto px-2">Informações dos Fabricante</legend>
+
+            <div class="row" id="fabricante-formset">
                 {% for form in formset %}
                     <div class="fabricante-form border p-3 mb-3 rounded">
                         <div class="row">
-                            {% for field in form %}
-                              {% if field.name == 'id' %}
-                                {{ field }} {# Campo id fica escondido pois é HiddenInput #}
-                              {% elif field.name != 'DELETE' %}
+                            {% for field in form.visible_fields %}
                                 <div class="col-12 mb-3">
-                                  {{ field.label_tag }}
-                                  {{ field }}
-                                  {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                                  {% endif %}
-                                  {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                  {% endfor %}
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
                                 </div>
-                              {% endif %}
                             {% endfor %}
-                            <div class="col-12 mb-3">
-                                {% if form.instance.pk %}
+
+                            {% if form.instance.pk %}
+                                <div class="col-12 mb-3">
                                     <button type="button" class="btn btn-outline-danger delete-fabricante-btn w-100" data-form-prefix="{{ form.prefix }}">
                                         <i class="bi bi-trash-fill"></i> Excluir
                                     </button>
                                     <input type="hidden" name="{{ form.prefix }}-DELETE" id="{{ form.prefix }}-DELETE" value="off">
-                                {% else %}
+                                </div>
+                            {% else %}
+                                <div class="col-12 mb-3">
                                     <button type="button" class="btn btn-outline-danger remove-new-fabricante-btn w-100">
                                         <i class="bi bi-trash-fill"></i> Remover
                                     </button>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -53,13 +51,11 @@
             <div id="empty-form" class="d-none">
                 <div class="fabricante-form border p-3 mb-3 rounded">
                     <div class="row">
-                        {% for field in formset.empty_form %}
-                            {% if field.name != 'DELETE' %}
-                                <div class="col-12 mb-3">
-                                    {{ field.label_tag }}
-                                    {{ field }}
-                                </div>
-                            {% endif %}
+                        {% for field in formset.empty_form.visible_fields %}
+                            <div class="col-12 mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                            </div>
                         {% endfor %}
                         <div class="col-12 mb-3">
                             <button type="button" class="btn btn-outline-danger remove-new-fabricante-btn w-100">
@@ -74,7 +70,6 @@
             <button type="button" class="btn btn-outline-success mt-2 d-flex align-items-center gap-2" id="add-fabricante">
                 <i class="bi bi-plus-circle"></i> Adicionar Fabricante
             </button>
-            </div>
         </fieldset>
 
         <!-- Botões -->
@@ -93,7 +88,6 @@
         const emptyFormHtml = document.getElementById("empty-form").innerHTML;
         const totalFormsInput = document.querySelector("#id_{{ formset.prefix }}-TOTAL_FORMS");
 
-        // Adicionar novo fabricante
         addButton.addEventListener("click", () => {
             const formIndex = parseInt(totalFormsInput.value);
             const newForm = document.createElement('div');
@@ -101,7 +95,7 @@
 
             const removeButton = newForm.querySelector('.remove-new-fabricante-btn');
             if (removeButton) {
-                removeButton.addEventListener('click', function() {
+                removeButton.addEventListener('click', function () {
                     newForm.remove();
                     totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
                 });
@@ -111,8 +105,7 @@
             totalFormsInput.value = formIndex + 1;
         });
 
-        // Marcar como excluído
-        formsetDiv.addEventListener('click', function(event) {
+        formsetDiv.addEventListener('click', function (event) {
             if (event.target.closest('.delete-fabricante-btn')) {
                 const button = event.target.closest('.delete-fabricante-btn');
                 const prefix = button.dataset.formPrefix;
@@ -125,7 +118,6 @@
             }
         });
 
-        // Remover dinamicamente formulários já renderizados
         document.querySelectorAll('.remove-new-fabricante-btn').forEach(button => {
             button.addEventListener('click', function () {
                 this.closest('.fabricante-form').remove();

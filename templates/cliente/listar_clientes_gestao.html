@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lista de Clientes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Lista de Clientes</h2>
+    <!-- Botão Adicionar Cliente -->
+    <div class="mb-3 text-end">
+        <a href="{% url 'cliente:adicionar_cliente_gestao' %}" class="btn btn-success">
+            + Adicionar Cliente
+        </a>
+    </div>
+    <!-- Filtros -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="nome" class="form-control" placeholder="Nome"
+                   value="{{ request.GET.nome }}">
+        </div>
+        <div class="col-md-4">
+            <input type="text" name="cpf" class="form-control" placeholder="CPF"
+                   value="{{ request.GET.cpf }}">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="idade" class="form-control" placeholder="Idade"
+                   value="{{ request.GET.idade }}">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Filtrar</button>
+            <a href="{% url 'cliente:listar_clientes_gestao' %}" class="btn btn-secondary flex-grow-1">Limpar</a>
+        </div>
+    </form>
+
+    <!-- Lista de Clientes -->
+        <div class="clientes-container">
+            {% for cliente in clientes %}
+                <div class="cliente-card d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ cliente.get_nome }}</strong><br>
+                        <small>CPF: {{ cliente.get_cpf_formatado }}</small><br>
+                        <small>
+                            {% if cliente.data_nascimento %}
+                                Idade: {{ cliente.data_nascimento|timesince }} atrás<br>
+                                Data de Nascimento: {{ cliente.data_nascimento|date:"d/m/Y" }}
+                            {% else %}
+                                Idade/Data de nascimento: -
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{% url 'cliente:editar_cadastro' cliente.id %}" class="btn btn-outline-secondary">Editar</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhum cliente encontrado.</p>
+            {% endfor %}
+        </div>
+
+
+    <!-- Paginação -->
+    {% if is_paginated %}
+        <div class="mt-4 d-flex justify-content-between align-items-center">
+            <div>
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-outline-primary"
+                       href="?{% if request.GET.nome %}nome={{ request.GET.nome }}&{% endif %}
+                               {% if request.GET.cpf %}cpf={{ request.GET.cpf }}&{% endif %}
+                               {% if request.GET.idade %}idade={{ request.GET.idade }}&{% endif %}
+                               page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% endif %}
+            </div>
+
+            <div>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</div>
+
+            <div>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-outline-primary"
+                       href="?{% if request.GET.nome %}nome={{ request.GET.nome }}&{% endif %}
+                               {% if request.GET.cpf %}cpf={{ request.GET.cpf }}&{% endif %}
+                               {% if request.GET.idade %}idade={{ request.GET.idade }}&{% endif %}
+                               page={{ page_obj.next_page_number }}">Próxima</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Botão Voltar -->
+    <div class="mt-4">
+        <a href="{% url 'estoques:menus' %}" class="btn btn-secondary">Voltar para o Painel</a>
+    </div>
+</div>
+
+<style>
+    .clientes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .cliente-card {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

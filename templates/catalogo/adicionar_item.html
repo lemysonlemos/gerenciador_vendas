@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Adicionar Item</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <fieldset class="border p-3 rounded mb-4">
+            <legend class="w-auto px-2">Informações dos Itens</legend>
+
+            <div class="row" id="item-formset">
+                {% for form in formset %}
+                    <div class="item-form border p-3 mb-3 rounded">
+                        <div class="row">
+                            {% for field in form.visible_fields %}
+                                <div class="col-12 mb-3">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            {% if form.instance.pk %}
+                                <div class="col-12 mb-3">
+                                    <button type="button" class="btn btn-outline-danger delete-item-btn w-100" data-form-prefix="{{ form.prefix }}">
+                                        <i class="bi bi-trash-fill"></i> Excluir
+                                    </button>
+                                    <input type="hidden" name="{{ form.prefix }}-DELETE" id="{{ form.prefix }}-DELETE" value="off">
+                                </div>
+                            {% else %}
+                                <div class="col-12 mb-3">
+                                    <button type="button" class="btn btn-outline-danger remove-new-item-btn w-100">
+                                        <i class="bi bi-trash-fill"></i> Remover
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Formulário vazio (template) -->
+            <div id="empty-form" class="d-none">
+                <div class="item-form border p-3 mb-3 rounded">
+                    <div class="row">
+                        {% for field in formset.empty_form.visible_fields %}
+                            <div class="col-12 mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                        <div class="col-12 mb-3">
+                            <button type="button" class="btn btn-outline-danger remove-new-item-btn w-100">
+                                <i class="bi bi-trash-fill"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão Adicionar -->
+            <button type="button" class="btn btn-outline-success mt-2 d-flex align-items-center gap-2" id="add-item">
+                <i class="bi bi-plus-circle"></i> Adicionar Item
+            </button>
+        </fieldset>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'catalogo:listar_catalogo_gestao' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const addButton = document.getElementById("add-item");
+        const formsetDiv = document.getElementById("item-formset");
+        const emptyFormHtml = document.getElementById("empty-form").innerHTML;
+        const totalFormsInput = document.querySelector("#id_{{ formset.prefix }}-TOTAL_FORMS");
+
+        addButton.addEventListener("click", () => {
+            const formIndex = parseInt(totalFormsInput.value);
+            const newForm = document.createElement('div');
+            newForm.innerHTML = emptyFormHtml.replace(/__prefix__/g, formIndex);
+
+            const removeButton = newForm.querySelector('.remove-new-item-btn');
+            if (removeButton) {
+                removeButton.addEventListener('click', function () {
+                    newForm.remove();
+                    totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+                });
+            }
+
+            formsetDiv.appendChild(newForm.firstElementChild);
+            totalFormsInput.value = formIndex + 1;
+        });
+
+        formsetDiv.addEventListener('click', function (event) {
+            if (event.target.closest('.delete-item-btn')) {
+                const button = event.target.closest('.delete-item-btn');
+                const prefix = button.dataset.formPrefix;
+                const deleteInput = document.getElementById(`${prefix}-DELETE`);
+                const formDiv = button.closest('.item-form');
+                if (deleteInput && formDiv) {
+                    deleteInput.value = 'on';
+                    formDiv.style.display = 'none';
+                }
+            }
+        });
+
+        document.querySelectorAll('.remove-new-item-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                this.closest('.item-form').remove();
+                totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+            });
+        });
+    });
+</script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+{% endblock %}

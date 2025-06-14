@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Estoque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Estoque</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            {{ form.qtd_estoque.label_tag }}
+            {{ form.qtd_estoque }}
+            {% if form.qtd_estoque.errors %}
+                <div class="text-danger">{{ form.qtd_estoque.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.catalogo.label_tag }}
+            {{ form.catalogo }}
+            {% if form.catalogo.errors %}
+                <div class="text-danger">{{ form.catalogo.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.loja.label_tag }}
+            {{ form.loja }}
+            {% if form.loja.errors %}
+                <div class="text-danger">{{ form.loja.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.descricao.label_tag }}
+            {{ form.descricao }}
+            {% if form.descricao.errors %}
+                <div class="text-danger">{{ form.descricao.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+
+<style>
+    textarea {
+        height: 60px !important; /* Ajusta a altura do campo descrição */
+        resize: vertical;
+    }
+</style>
+
+{% endblock %}

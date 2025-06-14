@@ -17,9 +17,6 @@ class ClienteDomain:
 
     @staticmethod
     def insstance_by_cliente(id_cliente: int):
-        """
-        Retorna uma nova instancia do ClienteDomain
-        """
         cliente = Cliente.objects.get(id=id_cliente)
         return ClienteDomain(cliente=cliente)
 

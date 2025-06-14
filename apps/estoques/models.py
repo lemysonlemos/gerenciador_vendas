@@ -12,31 +12,12 @@ class Estoque(BaseModel):
         db_column='PK_ESTOQUE',
         primary_key=True
     )
-    perda_tecnica = models.PositiveBigIntegerField(
-        db_column='QT_PERDA_TECNICA',
-        verbose_name='Perda técnica',
-        default=0
-    )
     qtd_estoque = models.PositiveBigIntegerField(
         db_column='QT_ESTOQUE',
         blank=False,
         null=False,
         verbose_name='Quantidade liberada do itens',
         default=0,
-    )
-    qtd_bloqueada = models.PositiveBigIntegerField(
-        db_column='QT_BLOQUEADA',
-        blank=False,
-        null=False,
-        verbose_name='Quantidade bloqueada de itens',
-        default=0
-    )
-    qtd_reservada = models.PositiveBigIntegerField(
-        db_column='QT_RESERVADA',
-        blank=False,
-        null=False,
-        verbose_name='Quantidade reservada de itens',
-        default=0
     )
     catalogo = models.ForeignKey(
         'catalogo.ItemFabricante',
