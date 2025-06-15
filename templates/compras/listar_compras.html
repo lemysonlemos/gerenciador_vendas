@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Lista de Compras</h2>
+
+    <form method="get" class="row g-3 mb-4 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Item</label>
+            <input type="text" name="item" value="{{ filtro_item }}" class="form-control" placeholder="Nome do item">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Fabricante</label>
+            <input type="text" name="fabricante" value="{{ filtro_fabricante }}" class="form-control" placeholder="Nome do fabricante">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Loja</label>
+            <input type="text" name="loja" value="{{ filtro_loja }}" class="form-control" placeholder="Nome da loja">
+        </div>
+        <div class="col-md-3">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <a href="{% url 'compras:listar_compras' %}" class="btn btn-secondary w-100">Limpar</a>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Loja</th>
+                <th>Quantidade</th>
+                <th>Compra Online?</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra in compras %}
+            <tr>
+                <td>{{ compra.catalogo }}</td>
+                <td>{{ compra.loja }}</td>
+                <td>{{ compra.qtd_compra }}</td>
+                <td>{{ compra.status_compra_online|yesno:"Sim,Não" }}</td>
+                <td>
+                    {% if compra.cancelar_compra %}
+                        Cancelada
+                    {% elif compra.compra_finalizada %}
+                        Finalizada
+                    {% else %}
+                        Aberta
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not compra.cancelar_compra %}
+                        <form method="post" action="{% url 'compras:compra_cancelada' compra.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary btn-sm" disabled>Cancelada</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Nenhuma compra encontrada com os filtros atuais.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'cliente:painel' %}" class="btn btn-secondary">Voltar para Menu</a>
+</div>
+{% endblock %}

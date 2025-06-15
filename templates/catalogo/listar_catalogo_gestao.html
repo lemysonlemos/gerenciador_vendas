@@ -48,9 +48,9 @@
         </div>
     </form>
 
-    <!-- Abas -->
+   <!-- Abas -->
     <ul class="nav nav-tabs" id="itemTabs" role="tablist">
-        {% for aba in abas_com_fabricantes %}
+        {% for aba in abas_com_estoques %}
             <li class="nav-item" role="presentation">
                 <button class="nav-link {% if forloop.first %}active{% endif %}"
                         id="tab-{{ forloop.counter }}-tab"
@@ -60,41 +60,47 @@
                         role="tab"
                         aria-controls="aba-{{ forloop.counter }}"
                         aria-selected="{{ forloop.first|yesno:'true,false' }}"
-                        data-tem-conteudo="{% if aba.fabricantes|length > 0 %}true{% else %}false{% endif %}">
+                        data-tem-conteudo="{% if aba.estoques|length > 0 %}true{% else %}false{% endif %}">
                     {{ aba.nome_aba }}
                 </button>
             </li>
         {% endfor %}
     </ul>
-
     <!-- Conteúdo das Abas -->
     <div class="tab-content mt-3" id="itemTabContent">
-        {% for aba in abas_com_fabricantes %}
+        {% for aba in abas_com_estoques %}
             <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
                  id="aba-{{ forloop.counter }}"
                  role="tabpanel"
                  aria-labelledby="tab-{{ forloop.counter }}-tab">
-                <div class="fabricantes-container">
-                    {% for item_fab in aba.fabricantes %}
-                        <div class="fabricante-card d-flex justify-content-between align-items-center">
+                <div class="estoques-container">
+                    {% for estoque in aba.estoques %}
+                        <div class="estoque-card d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>{{ item_fab.fabricante.nome }}</strong><br>
-                                <small>Tamanho: {{ item_fab.tamanho_calcado }} | Preço: R$ {{ item_fab.preco }}</small>
+                                <strong>{{ estoque.catalogo.fabricante.nome }}</strong><br>
+                                <small>
+                                    Tamanho: {{ estoque.catalogo.tamanho_calcado }} |
+                                    Preço: R$ {{ estoque.catalogo.preco }} |
+                                    Quantidade em estoque: {{ estoque.qtd_estoque }}
+                                </small>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'catalogo:editar_catalogo' item_fab.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'compras:compra_vendedor' estoque.id %}" class="btn btn-success btn-sm">
+                                    Comprar
+                                </a>
+                                <a href="{% url 'catalogo:editar_catalogo' estoque.catalogo.id %}" class="btn btn-outline-primary btn-sm">
                                     Editar Catálogo
                                 </a>
-                                <a href="{% url 'catalogo:editar_item' item_fab.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'catalogo:editar_item' estoque.catalogo.item.id %}" class="btn btn-outline-primary btn-sm">
                                     Editar Item
                                 </a>
-                                <a href="{% url 'catalogo:editar_fabricante' item_fab.id %}" class="btn btn-outline-primary btn-sm">
+                                <a href="{% url 'catalogo:editar_fabricante' estoque.catalogo.fabricante.id %}" class="btn btn-outline-primary btn-sm">
                                     Editar Fabricante
                                 </a>
                             </div>
                         </div>
                     {% empty %}
-                        <p class="text-muted">Nenhum fabricante cadastrado.</p>
+                        <p class="text-muted">Nenhum estoque cadastrado.</p>
                     {% endfor %}
                 </div>
             </div>

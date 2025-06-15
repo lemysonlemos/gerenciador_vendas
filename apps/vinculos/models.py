@@ -91,4 +91,4 @@ class Vinculo(BaseModel):
         db_table = 'TB_USUARIO_VINCULO'
 
     def __str__(self):
-        return f"{self.usuario.cliente.nome_completo} | {self.usuario.cliente.nome_completo}"
+        return f"{self.usuario.cliente.nome_completo} | {self.usuario.cliente.cpf}"

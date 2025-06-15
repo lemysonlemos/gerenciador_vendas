@@ -37,7 +37,7 @@
 
     <!-- Abas -->
     <ul class="nav nav-tabs" id="itemTabs" role="tablist">
-        {% for aba in abas_com_fabricantes %}
+        {% for aba in abas_com_estoques %}
             <li class="nav-item" role="presentation">
                 <button class="nav-link {% if forloop.first %}active{% endif %}"
                         id="tab-{{ forloop.counter }}-tab"
@@ -47,7 +47,7 @@
                         role="tab"
                         aria-controls="aba-{{ forloop.counter }}"
                         aria-selected="{{ forloop.first|yesno:'true,false' }}"
-                        data-tem-conteudo="{% if aba.fabricantes|length > 0 %}true{% else %}false{% endif %}">
+                        data-tem-conteudo="{% if aba.estoques|length > 0 %}true{% else %}false{% endif %}">
                     {{ aba.nome_aba }}
                 </button>
             </li>
@@ -56,21 +56,31 @@
 
     <!-- Conteúdo das Abas -->
     <div class="tab-content mt-3" id="itemTabContent">
-        {% for aba in abas_com_fabricantes %}
+        {% for aba in abas_com_estoques %}
             <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
                  id="aba-{{ forloop.counter }}"
                  role="tabpanel"
                  aria-labelledby="tab-{{ forloop.counter }}-tab">
-                <div class="fabricantes-container">
-                    {% for item_fab in aba.fabricantes %}
-                        <div class="fabricante-card d-flex justify-content-between align-items-center">
+                <div class="estoques-container">
+                    {% for estoque in aba.estoques %}
+                        <div class="estoque-card d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>{{ item_fab.fabricante.nome }}</strong><br>
-                                <small>Tamanho: {{ item_fab.tamanho_calçado }} | Preço: R$ {{ item_fab.preco }}</small>
+                                <strong>{{ estoque.catalogo.fabricante.nome }}</strong><br>
+                                <small>
+                                    Tamanho: {{ estoque.catalogo.tamanho_calcado }} |
+                                    Preço: R$ {{ estoque.catalogo.preco }} |
+                                    Quantidade em estoque: {{ estoque.qtd_estoque }}
+                                </small>
+                            </div>
+                            <div>
+                                <a href="{% url 'compras:compra_cliente' %}?estoque_id={{ estoque.id }}"
+                                   class="btn btn-success btn-sm">
+                                    Comprar
+                                </a>
                             </div>
                         </div>
                     {% empty %}
-                        <p class="text-muted">Nenhum fabricante cadastrado.</p>
+                        <p class="text-muted">Nenhum estoque cadastrado.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -84,14 +94,14 @@
 </div>
 
 <style>
-    .fabricantes-container {
+    .estoques-container {
         display: flex;
         flex-direction: column;
         gap: 1rem;
         margin-top: 1rem;
     }
 
-    .fabricante-card {
+    .estoque-card {
         background-color: #f8f9fa;
         padding: 1rem;
         border-radius: 8px;
@@ -166,7 +176,6 @@
                 }
             });
         }
-        // Se não tem filtro, mantém a cor padrão (sem alteração)
     });
 </script>
 

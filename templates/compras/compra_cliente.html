@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Comprar Produto{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Comprar Produto</h2>
+
+    <div class="mb-4">
+        <strong>Produto:</strong> {{ estoque.catalogo.item.nome }}<br>
+        <strong>Fabricante:</strong> {{ estoque.catalogo.fabricante.nome }}<br>
+        <strong>Tamanho:</strong> {{ estoque.catalogo.tamanho_calcado }}<br>
+        <strong>Preço:</strong> R$ {{ estoque.catalogo.preco }}<br>
+        <strong>Estoque disponível:</strong> {{ estoque.qtd_estoque }}
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.estoque_id }}
+        <div class="mb-3">
+            <label for="{{ form.qtd_compra.id_for_label }}" class="form-label">Quantidade</label>
+            {{ form.qtd_compra }}
+            {% if form.qtd_compra.errors %}
+                <div class="text-danger">{{ form.qtd_compra.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.pagamento.id_for_label }}" class="form-label">Pagamento</label>
+            {{ form.pagamento }}
+            {% if form.pagamento.errors %}
+                <div class="text-danger">{{ form.pagamento.errors }}</div>
+            {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+        <a href="{% url 'catalogo:listar_catalogo' %}" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

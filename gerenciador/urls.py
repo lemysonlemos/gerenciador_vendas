@@ -29,8 +29,7 @@ urlpatterns = [
     path('autenticacao/', include('apps.autenticacao.urls', namespace='autenticacao')),
     path('estoques/', include('apps.estoques.urls', namespace='estoques')),
     path('catalogo/', include('apps.catalogo.urls', namespace='catalogo')),
-
     path('vinculos/', include('apps.vinculos.urls', namespace='vinculos')),
-
     path('lojas/', include('apps.lojas.urls', namespace='lojas')),
+    path('compras/', include('apps.compras.urls', namespace='compras')),
 ]
