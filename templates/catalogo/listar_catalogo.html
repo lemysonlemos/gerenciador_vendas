@@ -66,7 +66,14 @@
                         <div class="estoque-card d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>{{ estoque.catalogo.fabricante.nome }}</strong><br>
+                                {% if estoque.catalogo.imagem %}
+                                    <img src="{{ estoque.catalogo.imagem.url }}" style="width: 100px; height: auto; border-radius: 6px; margin-right: 10px;">
+                                {% else %}
+                                    <img src="{% static 'img/placeholder.jpeg' %}" alt="Sem imagem" style="width: 100px; height: auto; border-radius: 6px; margin-right: 10px;">
+                                {% endif %}
+                                <strong>{{ estoque.catalogo.fabricante.nome }}</strong><br>
                                 <small>
+                                    Loja: {{ estoque.loja.nome }} |
                                     Tamanho: {{ estoque.catalogo.tamanho_calcado }} |
                                     Preço: R$ {{ estoque.catalogo.preco }} |
                                     Quantidade em estoque: {{ estoque.qtd_estoque }}

@@ -166,9 +166,10 @@
     <header>
         <h1>LemyWalk</h1>
         <nav>
-{#            <a href="{% url 'login' %}">Login</a>#}
-{#            <a href="{% url 'cadastro' %}">Cadastro</a>#}
-{#            <a href="{% url 'home' %}">Início</a>#}
+            {% if user.is_authenticated %}
+                <span class="text-white me-3"> {{ user.cliente }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Sair</a>
+            {% endif %}
         </nav>
     </header>
 

@@ -2,23 +2,28 @@ from django.contrib.auth.decorators import permission_required, user_passes_test
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.urls import reverse_lazy
 
-from apps.base.utils import is_admin, is_vendedor
+from apps.base.utils import is_admin, is_vendedor, perfil_requerido
 from apps.catalogo.domain import ItemDomain, ItemFabricanteDomain
 from apps.catalogo.forms import ItemForm, ItemFabricanteFormSet, ItemFabricanteForm, ItemFormSet, FabricanteFormSet, \
     FabricanteForm
 from apps.catalogo.models import Item, ItemFabricante, Fabricante
-from apps.estoques.domain import EstoqueFiltroDomain
+from apps.estoques.domain import EstoqueFiltroDomain, EstoqueFiltroClienteDomain
 from apps.estoques.models import Estoque
+from apps.vinculos.domain import VinculoDomain
+from apps.vinculos.models import Vinculo
 
 
+@login_required(login_url=reverse_lazy('autenticacao:login'))
 def listar_catalogo(request):
     filtro_fabricante = request.GET.get('fabricante', '')
     filtro_tamanho = request.GET.get('tamanho', '')
     filtro_preco_min = request.GET.get('preco_min', '')
     filtro_preco_max = request.GET.get('preco_max', '')
 
-    filtro_domain = EstoqueFiltroDomain(
+
+    filtro_domain = EstoqueFiltroClienteDomain(
         filtro_fabricante=filtro_fabricante,
         filtro_tamanho=filtro_tamanho,
         filtro_preco_min=filtro_preco_min,
@@ -39,14 +44,20 @@ def listar_catalogo(request):
     return render(request, 'catalogo/listar_catalogo.html', contexto)
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def listar_catalogo_gestao(request):
+    usuario = request.user.usuario.id
+    vinculo_domain = VinculoDomain.new_instance_by_id(usuario)
+    lojas = vinculo_domain.filtro_loja()
+
+
     filtro_fabricante = request.GET.get('fabricante', '')
     filtro_tamanho = request.GET.get('tamanho', '')
     filtro_preco_min = request.GET.get('preco_min', '')
     filtro_preco_max = request.GET.get('preco_max', '')
 
     filtro_domain = EstoqueFiltroDomain(
+        lojas,
         filtro_fabricante=filtro_fabricante,
         filtro_tamanho=filtro_tamanho,
         filtro_preco_min=filtro_preco_min,
@@ -67,8 +78,7 @@ def listar_catalogo_gestao(request):
     return render(request, 'catalogo/listar_catalogo_gestao.html', contexto)
 
 
-@user_passes_test(is_admin)
-@permission_required('catalogo.', raise_exception=True)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_catalogo(request):
     if request.method == 'POST':
         formset = ItemFabricanteFormSet(request.POST, request.FILES)
@@ -90,7 +100,7 @@ def adicionar_catalogo(request):
     return render(request, 'catalogo/adicionar_catalogo.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def editar_catalogo(request, id_item_fabricante):
 
     domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)
@@ -115,7 +125,7 @@ def editar_catalogo(request, id_item_fabricante):
     return render(request, 'catalogo/editar_catalogo.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_item(request):
     if request.method == 'POST':
         formset = ItemFormSet(request.POST)
@@ -137,7 +147,7 @@ def adicionar_item(request):
     return render(request, 'catalogo/adicionar_item.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def editar_item(request, id_item_fabricante):
 
     domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)
@@ -162,7 +172,7 @@ def editar_item(request, id_item_fabricante):
     return render(request, 'catalogo/editar_item.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_fabricante(request):
     if request.method == 'POST':
         formset = FabricanteFormSet(request.POST)
@@ -184,7 +194,7 @@ def adicionar_fabricante(request):
     return render(request, 'catalogo/adicionar_fabricante.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def editar_fabricante(request, id_item_fabricante):
 
     domain = ItemFabricanteDomain.instance_by_itemfabricante(id_item_fabricante)

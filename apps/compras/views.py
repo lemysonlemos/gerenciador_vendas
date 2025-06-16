@@ -1,31 +1,39 @@
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.urls import reverse_lazy
 
-from apps.base.utils import is_vendedor
-from apps.compras.domain import ComprasDomain, ComprasFiltroDomain
+from apps.base.utils import is_vendedor, perfil_requerido
+from apps.compras.domain import ComprasDomain, ComprasFiltroDomain, ComprasFiltroClienteDomain
 from apps.compras.forms import CompraForm, CompraGestaoForm
 from apps.compras.models import Compra
 from apps.estoques.domain import EstoqueDomain
+from apps.vinculos.domain import VinculoDomain
+from apps.vinculos.models import Vinculo
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def listar_compras(request):
+    usuario = request.user.usuario.id
+    vinculo_domain = VinculoDomain.new_instance_by_id(usuario)
+    lojas = vinculo_domain.filtro_loja()
+
     filtro_cliente = request.GET.get("cliente", "")
     filtro_item = request.GET.get("item", "")
-    filtro_loja = request.GET.get("loja", "")
     filtro_vendedor = request.GET.get("vendedor", "")
     filtro_fabricante = request.GET.get("fabricante", "")
+    filtro_loja = request.GET.get("loja", "")
 
     domain = ComprasFiltroDomain(
+        lojas,
         filtro_cliente=filtro_cliente,
         filtro_vendedor=filtro_vendedor,
         filtro_item=filtro_item,
+        filtro_fabricante=filtro_fabricante,
         filtro_loja=filtro_loja,
-        filtro_fabricante=filtro_fabricante
     )
     compras = domain.filter_compras()
 
@@ -41,6 +49,7 @@ def listar_compras(request):
     return render(request, 'compras/listar_compras_gestao.html', context)
 
 
+@login_required(login_url=reverse_lazy('autenticacao:login'))
 def listar_compras_cliente(request):
     filtro_item = request.GET.get("item", "")
     filtro_loja = request.GET.get("loja", "")
@@ -48,8 +57,8 @@ def listar_compras_cliente(request):
 
     cliente = request.user.cliente
 
-    domain = ComprasFiltroDomain(
-        filtro_cliente=cliente.nome_completo,
+    domain = ComprasFiltroClienteDomain(
+        cliente,
         filtro_item=filtro_item,
         filtro_loja=filtro_loja,
         filtro_fabricante=filtro_fabricante
@@ -92,7 +101,7 @@ def compra_cliente(request):
                 with transaction.atomic():
                     compra.save()
                 messages.success(request, "Compra realizada com sucesso!")
-                return redirect('compras:listar_compras')
+                return redirect('compras:listar_compras_cliente')
             except ValidationError as e:
                 form.add_error(None, e.message)
     else:
@@ -119,7 +128,7 @@ def compra_cancelada(request, id_compra):
     return redirect('compras:listar_compras')
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def compra_vendedor(request, id_estoque):
     vendedor = request.user.usuario.vinculos.first()
 

@@ -5,11 +5,9 @@
     <h2 class="mb-4">Vínculos</h2>
 
     <!-- Botão Adicionar -->
-    {% if is_admin %}
     <div class="mb-3">
         <a href="{% url 'vinculos:adicionar_vinculo' %}" class="btn btn-success">Adicionar Vínculo</a>
     </div>
-    {% endif %}
 
     <!-- Filtros -->
     <form method="get" class="mb-4 row g-2">
@@ -53,9 +51,7 @@
                 <th>Loja</th>
                 <th>Perfil</th>
                 <th>Status</th>
-                {% if is_admin %}
                 <th>Ações</th>
-                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -78,11 +74,9 @@
                         {% endif %}
                     {% endfor %}
                 </td>
-                {% if is_admin %}
                 <td>
                     <a href="{% url 'vinculos:editar_vinculo' vinculo.id %}" class="btn btn-sm btn-warning">Editar</a>
                 </td>
-                {% endif %}
             </tr>
             {% empty %}
             <tr>

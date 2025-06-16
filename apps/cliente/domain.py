@@ -98,3 +98,34 @@ class ClienteDomain:
             raise ClienteErroGenericoException(message=msg)
         except Exception:
             raise ClienteErroGenericoException()
+
+
+
+class ClienteFiltroDomain:
+    def __init__(self, nome='', cpf='', idade=''):
+        self.nome = nome.strip()
+        self.cpf = cpf.strip()
+        self.idade = idade.strip()
+
+    def filter(self):
+        queryset = Cliente.objects.all()
+
+        if self.nome:
+            queryset = queryset.filter(
+                Q(nome_completo__icontains=self.nome) | Q(nome_social__icontains=self.nome)
+            )
+
+        if self.cpf:
+            queryset = queryset.filter(cpf__icontains=self.cpf)
+
+        if self.idade:
+            try:
+                idade = int(self.idade)
+                hoje = date.today()
+                data_nascimento_min = date(hoje.year - idade - 1, hoje.month, hoje.day)
+                data_nascimento_max = date(hoje.year - idade, hoje.month, hoje.day)
+                queryset = queryset.filter(data_nascimento__range=(data_nascimento_min, data_nascimento_max))
+            except ValueError:
+                pass
+
+        return queryset

@@ -18,18 +18,19 @@ class EstoqueDomain:
 
 
 class EstoqueFiltroDomain:
-    def __init__(self, filtro_fabricante='', filtro_tamanho='', filtro_preco_min='', filtro_preco_max=''):
+    def __init__(self, lojas, filtro_fabricante='', filtro_tamanho='', filtro_preco_min='', filtro_preco_max=''):
         self.filtro_fabricante = filtro_fabricante
         self.filtro_tamanho = filtro_tamanho
         self.filtro_preco_min = filtro_preco_min
         self.filtro_preco_max = filtro_preco_max
+        self.lojas = lojas
 
     def listar_estoques_por_aba(self):
         nomes_das_abas = (
-            Estoque.objects.filter(catalogo__item__ativo=True)
+            Estoque.objects.filter(catalogo__item__ativo=True, loja__in=self.lojas)
             .values_list('catalogo__item__nome', flat=True)
             .distinct()
-        )
+        ).order_by('catalogo__item__nome')
 
         abas_com_estoques = []
 
@@ -61,14 +62,13 @@ class EstoqueFiltroDomain:
         return abas_com_estoques
 
 
-class EstoqueFiltroGestaoDomain:
+class EstoqueFiltroClienteDomain:
     def __init__(self, filtro_fabricante='', filtro_tamanho='', filtro_preco_min='', filtro_preco_max='',
                  filtro_loja=''):
         self.filtro_fabricante = filtro_fabricante
         self.filtro_tamanho = filtro_tamanho
         self.filtro_preco_min = filtro_preco_min
         self.filtro_preco_max = filtro_preco_max
-        self.filtro_loja = filtro_loja
 
     def listar_estoques_por_aba(self):
         nomes_das_abas = (
@@ -98,8 +98,6 @@ class EstoqueFiltroGestaoDomain:
                     estoques = estoques.filter(catalogo__preco__lte=preco_max)
                 except ValueError:
                     pass
-            if self.filtro_loja:
-                estoques = estoques.filter(loja__nome__icontains=self.filtro_loja)
 
             abas_com_estoques.append({
                 'nome_aba': nome,

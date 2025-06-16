@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+import dj_database_url
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,8 @@ SECRET_KEY = 'django-insecure-9*y-%z-0n9=!m35we3x#h4!+(k$!(l=k42hmec9jcik5*39lv*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'apps.lojas',
     'apps.vinculos',
     'apps.compras',
+    'apps.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -61,12 +65,22 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+
+# WhiteNoise settings
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+LOGOUT_REDIRECT_URL = reverse_lazy('inicio')
 
 MEDIA_URL = '/fotos_catalogo/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'fotos_catalogo')
 
-STATIC_URL = '/static/'
-import os
+# STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
@@ -94,8 +108,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gerenciador.wsgi.application'
 
-LOGIN_REDIRECT_URL = '/cliente/dashboard/'
-LOGOUT_REDIRECT_URL = '/cliente/'
 
 AUTH_USER_MODEL = 'autenticacao.UsuarioBase'
 
@@ -113,16 +125,21 @@ AUTH_USER_MODEL = 'autenticacao.UsuarioBase'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'gerenciador',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'localhost',
+#         'PORT': 5432,
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gerenciador',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': 5432,
-    }
+    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -158,8 +175,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

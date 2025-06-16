@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Dashboard</h2>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label>Loja:</label>
+            <select name="loja" class="form-select">
+                <option value="">Todas</option>
+                {% for loja in lojas %}
+                    <option value="{{ loja.id }}">{{ loja.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Finalizada:</label>
+            <select name="finalizada" class="form-select">
+                <option value="">Todas</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Cancelada:</label>
+            <select name="cancelada" class="form-select">
+                <option value="">Todas</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+            </select>
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button class="btn btn-primary w-100" type="submit">Filtrar</button>
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Compras</h2>
+
+        <form method="get" action="" id="exportar-form">
+            {% for key, value in request.GET.items %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            <input type="hidden" name="exportar" value="xlsx">
+            <button type="submit" class="btn btn-success">Exportar XLSX</button>
+        </form>
+    </div>
+
+    <canvas id="graficoCompras" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const dados = JSON.parse('{{ dados_grafico|escapejs }}');
+        const ctx = document.getElementById('graficoCompras').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Finalizadas', 'Canceladas', 'Online'],
+                datasets: [{
+                    label: 'Compras',
+                    data: [dados.finalizadas, dados.canceladas, dados.online],
+                    backgroundColor: ['#28a745', '#dc3545', '#007bff']
+                }]
+            }
+        });
+    </script>
+
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Fabricante</th>
+                <th>Tam.</th>
+                <th>Loja</th>
+                <th>Pagamento</th>
+                <th>Vendedor</th>
+                <th>Qtd</th>
+                <th>Online</th>
+                <th>Finalizada</th>
+                <th>Cancelada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra in compras %}
+            <tr>
+                <td>{{ compra.catalogo.item.nome }}</td>
+                <td>{{ compra.catalogo.fabricante.nome }}</td>
+                <td>{{ compra.catalogo.tamanho_calcado }}</td>
+                <td>{{ compra.loja }}</td>
+                <td>{{ compra.pagamento }}</td>
+                <td>{{ compra.vendedor }}</td>
+                <td>{{ compra.qtd_compra }}</td>
+                <td>{{ compra.status_compra_online|yesno:"Sim,Não" }}</td>
+                <td>{{ compra.compra_finalizada|yesno:"Sim,Não" }}</td>
+                <td>{{ compra.cancelar_compra|yesno:"Sim,Não" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'estoques:menus' %}" class="btn btn-secondary">Voltar </a>
+</div>
+{% endblock %}

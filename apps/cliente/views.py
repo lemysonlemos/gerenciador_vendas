@@ -11,17 +11,17 @@ from datetime import date
 
 
 from apps.base.formsets import FormSetFactory
-from apps.base.utils import is_vendedor
+from apps.base.utils import is_vendedor, perfil_requerido
 from apps.cliente.dataclasses import DadosClienteDTO
-from apps.cliente.domain import ClienteDomain
+from apps.cliente.domain import ClienteDomain, ClienteFiltroDomain
 from apps.cliente.exceptions import ClienteErroGenericoException
-from apps.cliente.forms import CadastrarClienteForm, AnexoClienteForm, CpfForm, ClienteForm
+from apps.cliente.forms import CadastrarClienteForm, AnexoClienteForm, CpfForm, ClienteForm, EsqueceuSenhaForm
 from apps.cliente.models import Cliente, ClienteEndereco, ClienteContato
 from apps.contatos.forms import ContatoFormSet, ContatoForm
 from apps.contatos.models import Contato
 from apps.enderecos.forms import EnderecoFormSet, EnderecoForm
 from apps.enderecos.models import Endereco
-
+from apps.vinculos.models import Vinculo
 
 
 def cadastro(request):
@@ -145,31 +145,16 @@ def perfil(request):
     return render(request, 'cliente/perfil.html', context)
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def listar_clientes_gestao(request):
-    queryset = Cliente.objects.all()
 
-    nome = request.GET.get('nome', '').strip()
-    cpf = request.GET.get('cpf', '').strip()
-    idade = request.GET.get('idade', '').strip()
+    filtro = ClienteFiltroDomain(
+        nome=request.GET.get('nome', ''),
+        cpf=request.GET.get('cpf', ''),
+        idade=request.GET.get('idade', '')
+    )
 
-    if nome:
-        queryset = queryset.filter(
-            Q(nome_completo__icontains=nome) | Q(nome_social__icontains=nome)
-        )
-
-    if cpf:
-        queryset = queryset.filter(cpf__icontains=cpf)
-
-    if idade:
-        try:
-            idade = int(idade)
-            hoje = date.today()
-            data_nascimento_min = date(hoje.year - idade - 1, hoje.month, hoje.day)
-            data_nascimento_max = date(hoje.year - idade, hoje.month, hoje.day)
-            queryset = queryset.filter(data_nascimento__range=(data_nascimento_min, data_nascimento_max))
-        except ValueError:
-            pass
+    queryset = filtro.filter()
 
     context = {
         'clientes': queryset
@@ -177,7 +162,7 @@ def listar_clientes_gestao(request):
     return render(request, 'cliente/listar_clientes_gestao.html', context)
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_cliente_gestao(request):
     if request.method == 'POST':
         form = CadastrarClienteForm(request.POST, request.FILES)
@@ -233,7 +218,7 @@ def adicionar_cliente_gestao(request):
     return render(request,'cliente/cadastro.html', context)
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def editar_cadastro(request, id_cliente):
     domain = ClienteDomain.insstance_by_cliente(id_cliente)
 

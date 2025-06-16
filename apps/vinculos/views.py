@@ -4,35 +4,37 @@ from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 from django.contrib import messages
 
-from apps.base.utils import is_admin, is_vendedor
+from apps.base.utils import is_admin, is_vendedor, perfil_requerido
 from apps.cliente.domain import ClienteDomain
 from apps.cliente.forms import CadastrarClienteForm, ClienteForm, CpfForm
-from apps.vinculos.domain import VinculoDomain
+from apps.vinculos.domain import VinculoDomain, VinculosFiltroDomain
 from apps.vinculos.exception import VinculoErroGenericoException
 from apps.vinculos.forms import VinculoForm
 from apps.vinculos.models import Vinculo
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def listar_vinculos(request):
+    usuario = request.user.usuario.id
+    vinculo_domain = VinculoDomain.new_instance_by_id(usuario)
+    lojas = vinculo_domain.filtro_loja()
+
     cpf = request.GET.get('cpf', '').strip()
     nome = request.GET.get('nome', '').strip()
     loja = request.GET.get('loja', '').strip()
     perfil = request.GET.get('perfil', '').strip()
     status = request.GET.get('status', '').strip()
 
-    vinculos = Vinculo.objects.select_related('usuario__cliente', 'loja').all()
+    filtro = VinculosFiltroDomain(
+        lojas=lojas,
+        cpf=cpf,
+        nome=nome,
+        loja_nome=loja,
+        perfil=perfil,
+        status=status
+    )
 
-    if cpf:
-        vinculos = vinculos.filter(usuario__cliente__cpf__icontains=cpf)
-    if nome:
-        vinculos = vinculos.filter(usuario__cliente__nome_completo__icontains=nome)
-    if loja:
-        vinculos = vinculos.filter(loja__nome__icontains=loja)
-    if perfil != '':
-        vinculos = vinculos.filter(perfil=perfil)
-    if status != '':
-        vinculos = vinculos.filter(status=status)
+    vinculos = filtro.filtrar()
 
     context = {
         'vinculos': vinculos,
@@ -49,7 +51,7 @@ def listar_vinculos(request):
     return render(request, 'vinculo/listar_vinculos.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_vinculo(request):
     if request.method == 'POST':
         form = VinculoForm(request.POST)
@@ -63,7 +65,7 @@ def adicionar_vinculo(request):
     return render(request, 'vinculo/vinculo_gestao.html', {'form': form, 'titulo': 'Adicionar Vínculo'})
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def editar_vinculo(request, vinculo_id):
     domain = VinculoDomain.new_instance_by_id(vinculo_id)
     vinculo = domain.get_vinculo()

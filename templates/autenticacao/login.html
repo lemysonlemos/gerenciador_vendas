@@ -24,10 +24,18 @@
     </div>
 
     <button type="submit" style="margin-top: 1rem;">Entrar</button>
+    <p style="text-align: center; margin-top: 1rem;">
+        Esqueceu a senha?
+        <a href="{% url 'autenticacao:esqueceu_senha' %}">Click aqui</a>
+    </p>
 </form>
 
 <p style="text-align: center; margin-top: 1rem;">
     Não tem uma conta?
     <a href="{% url 'cliente:cadastro' %}">Cadastre-se aqui</a>
+    <div class="text-end">
+        <a href="{% url 'inicio' %}" class="btn btn-secondary">Voltar </a>
+    </div>
+
 </p>
 {% endblock %}

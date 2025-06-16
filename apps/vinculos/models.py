@@ -20,13 +20,16 @@ class Vinculo(BaseModel):
     class PerfilVinculo(models.IntegerChoices):
         ADMIN = 0
         VENDEDOR = 1
+        GERENTE = 2
 
     ADMIN = 'Administrador'
     VENDEDOR = 'Vendedor'
+    GERENTE = 'Gerente'
 
     STATUS_PERFIL = (
         (0, ADMIN),
         (1, VENDEDOR),
+        (2, GERENTE),
     )
     id = models.AutoField(
         db_column="PK_VINCULO",

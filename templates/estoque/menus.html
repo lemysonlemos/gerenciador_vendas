@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <h4 class="text-end">Bem-vindo, {{ user }}</h4>
+    <h4 class="text-end">
+    <a href="{% url 'logout' %}" class="btn btn-danger btn-lg mt-4">Sair</a>
+    </h4>
 <div class="container mt-5">
     <h2>Menu Principal</h2>
     <div class="d-grid gap-3 col-6 mx-auto mt-4">
@@ -10,14 +14,14 @@
         <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-primary btn-lg">Estoque</a>
 
         <a href="{% url 'lojas:listar_lojas' %}" class="btn btn-primary btn-lg">Lojas</a>
-{##}
+
         <a href="{% url 'vinculos:listar_vinculos' %}" class="btn btn-primary btn-lg">Vínculo</a>
-{##}
+
         <a href="{% url 'cliente:listar_clientes_gestao' %}" class="btn btn-primary btn-lg">Clientes</a>
-{##}
+
         <a href="{% url 'catalogo:listar_catalogo_gestao' %}" class="btn btn-primary btn-lg">Catálogo</a>
-{##}
-{#        <a href="{% url 'vendas:dashboard' %}" class="btn btn-primary btn-lg">Vendas</a>#}
+
+        <a href="{% url 'dashboard:dashboard_compras' %}" class="btn btn-primary btn-lg">Dashboard</a>
 
     </div>
 </div>

@@ -276,3 +276,37 @@ class CpfForm(forms.Form):
 
     def clean_cpf(self):
         return re.sub(r'\D', '', self.cleaned_data['cpf'])
+
+
+class EsqueceuSenhaForm(forms.Form):
+    nome_completo = forms.CharField(
+        label="Nome completo",
+        max_length=150
+    )
+    cpf = forms.CharField(
+        label="CPF",
+        max_length=14
+    )
+    data_nascimento = forms.DateField(
+        label='Data de nascimento',
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+    )
+    nova_senha = forms.CharField(
+        label="Nova senha",
+        widget=forms.PasswordInput(),
+        min_length=6,
+        max_length=20,
+    )
+    confirmar_nova_senha = forms.CharField(
+        label="Confirmar nova senha",
+        widget=forms.PasswordInput(),
+        min_length=6,
+        max_length=20,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        senha = cleaned_data.get("nova_senha")
+        confirmar = cleaned_data.get("confirmar_nova_senha")
+        if senha != confirmar:
+            raise forms.ValidationError("As senhas não coincidem.")

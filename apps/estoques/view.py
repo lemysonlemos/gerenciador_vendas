@@ -2,32 +2,38 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, reverse
 
-from apps.base.utils import is_admin, is_vendedor
-from apps.estoques.domain import EstoqueFiltroDomain, EstoqueFiltroGestaoDomain, EstoqueDomain
+from apps.base.utils import is_admin, is_vendedor, perfil_requerido
+from apps.estoques.domain import EstoqueFiltroDomain, EstoqueDomain
 from apps.estoques.forms import EstoqueFormSet, EstoqueForm
 from apps.estoques.models import Estoque
+from apps.vinculos.domain import VinculoDomain
+from apps.vinculos.models import Vinculo
 
 
 def menus(request):
-    user = request.user
-    return render(request, 'estoque/menus.html')
+    user = request.user.usuario
+    context = {'user': user}
+    return render(request, 'estoque/menus.html', context)
 
 
-@user_passes_test(is_vendedor)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def listar_estoque(request):
+
+    usuario = request.user.usuario.id
+    vinculo_domain = VinculoDomain.new_instance_by_id(usuario)
 
     filtro_fabricante = request.GET.get('fabricante', '')
     filtro_tamanho = request.GET.get('tamanho', '')
     filtro_preco_min = request.GET.get('preco_min', '')
     filtro_preco_max = request.GET.get('preco_max', '')
-    filtro_loja = request.GET.get('loja_nome', '')  # nome da loja, não o id
+    lojas = vinculo_domain.filtro_loja()
 
-    domain = EstoqueFiltroGestaoDomain(
+    domain = EstoqueFiltroDomain(
+        lojas,
         filtro_fabricante=filtro_fabricante,
         filtro_tamanho=filtro_tamanho,
         filtro_preco_min=filtro_preco_min,
         filtro_preco_max=filtro_preco_max,
-        filtro_loja=filtro_loja
     )
 
     estoques = domain.listar_estoques_por_aba()
@@ -39,7 +45,7 @@ def listar_estoque(request):
     return render(request, 'estoque/listar_estoque.html', context)
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def adicionar_estoque(request):
     if request.method == 'POST':
         formset = EstoqueFormSet(request.POST, queryset=Estoque.objects.none())
@@ -60,7 +66,7 @@ def adicionar_estoque(request):
     return render(request, 'estoque/adicionar_estoque.html', {'formset': formset})
 
 
-@user_passes_test(is_admin)
+@perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.ADMIN)
 def editar_estoque(request, id_estoque):
     domain = EstoqueDomain.instance_by_estoque(id_estoque)
     estoque = domain.get_estoque()

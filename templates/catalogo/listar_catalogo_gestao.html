@@ -8,7 +8,6 @@
     <h2 class="mb-4">Itens por Categoria</h2>
 
     <!-- Botão Adicionar Catálogo -->
-    {% if is_admin %}
     <div class="d-flex gap-2 mb-3">
         <a href="{% url 'catalogo:adicionar_catalogo' %}" class="btn btn-success">
             + Adicionar Catálogo
@@ -20,7 +19,6 @@
             + Adicionar Fabricante
         </a>
     </div>
-    {% endif %}
 
     <!-- Filtro de busca -->
     <form method="get" id="form-filtro" class="row g-3 mb-4">
@@ -95,7 +93,6 @@
                                 <a href="{% url 'compras:compra_vendedor' estoque.id %}" class="btn btn-success btn-sm">
                                     Comprar
                                 </a>
-                                {% if is_admin %}
                                     <a href="{% url 'catalogo:editar_catalogo' estoque.catalogo.id %}" class="btn btn-sm btn-warning">
                                         Editar Catálogo
                                     </a>
@@ -105,7 +102,6 @@
                                     <a href="{% url 'catalogo:editar_fabricante' estoque.catalogo.id %}" class="btn btn-sm btn-warning">
                                         Editar Fabricante
                                     </a>
-                                {% endif %}
                             </div>
                         </div>
                     {% empty %}
