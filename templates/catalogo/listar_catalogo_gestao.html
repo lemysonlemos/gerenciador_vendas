@@ -80,7 +80,7 @@
                                 {% if estoque.catalogo.imagem %}
                                     <img src="{{ estoque.catalogo.imagem.url }}" style="width: 100px; height: auto; border-radius: 6px; margin-right: 10px;">
                                 {% else %}
-                                    <img src="{% staticfiles 'img/placeholder.jpeg' %}" alt="Sem imagem" style="width: 100px; height: auto; border-radius: 6px; margin-right: 10px;">
+                                    <img src="{% static 'img/placeholder.jpeg' %}" alt="Sem imagem" style="width: 100px; height: auto; border-radius: 6px; margin-right: 10px;">
                                 {% endif %}
                                 <strong>{{ estoque.catalogo.fabricante.nome }}</strong><br>
                                 <small>
