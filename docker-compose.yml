@@ -20,8 +20,8 @@ services:
 
   db:
     image: postgres:15
-    ports:
-      - "5436:5432"  # expõe a porta do banco de dados para seu host local
+#    ports:
+#      - "5436:5432"  # expõe a porta do banco de dados para seu host local
     environment:
       POSTGRES_DB: gerenciador
       POSTGRES_USER: postgres

@@ -1,7 +1,6 @@
 aiosmtplib==1.1.7
 anyio==3.7.1
 asgiref==3.8.1
-backports.zoneinfo==0.2.1
 certifi==2025.4.26
 charset-normalizer==3.4.2
 coverage==4.0.3
