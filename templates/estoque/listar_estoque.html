@@ -8,9 +8,11 @@
     <h2 class="mb-3">Estoque</h2>
 
     <!-- Botões superiores -->
+    {% if is_admin %}
     <div class="mb-3 d-flex justify-content-between">
         <a href="{% url 'estoques:adicionar_estoque' %}" class="btn btn-success">Adicionar Estoque</a>
     </div>
+    {% endif %}
 
     <form method="get" class="row g-3 mb-4">
         <div class="col-md-2">
@@ -18,15 +20,15 @@
                    value="{{ request.GET.qtd_min }}">
         </div>
         <div class="col-md-2">
-            <input type="text" name="loja" class="form-control" placeholder="ID Loja"
+            <input type="text" name="loja" class="form-control" placeholder="Loja"
                    value="{{ request.GET.loja }}">
         </div>
         <div class="col-md-2">
-            <input type="text" name="item" class="form-control" placeholder="ID Item"
+            <input type="text" name="item" class="form-control" placeholder="Item"
                    value="{{ request.GET.item }}">
         </div>
         <div class="col-md-2">
-            <input type="text" name="fabricante" class="form-control" placeholder="ID Fabricante"
+            <input type="text" name="fabricante" class="form-control" placeholder="Fabricante"
                    value="{{ request.GET.fabricante }}">
         </div>
         <div class="col-md-2">
@@ -44,39 +46,41 @@
     </form>
 
     <table class="table table-striped table-bordered">
-        <thead>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Fabricante</th>
+          <th>Tamanho</th>
+          <th>Preço</th>
+          <th>Quantidade</th>
+          <th>Loja</th>
+          {% if is_admin %}
+          <th>Ações</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for aba in estoques %}
+          {% for estoque in aba.estoques %}
             <tr>
-                <th>Item</th>
-                <th>Fabricante</th>
-                <th>Tamanho</th>
-                <th>Preço</th>
-                <th>Quantidade</th>
-                <th>Loja</th>
-                <th>Ações</th>
+              <td>{{ estoque.catalogo.item.nome }}</td>
+              <td>{{ estoque.catalogo.fabricante.nome }}</td>
+              <td>{{ estoque.catalogo.tamanho_calcado }}</td>
+              <td>R$ {{ estoque.catalogo.preco }}</td>
+              <td>{{ estoque.qtd_estoque }}</td>
+              <td>{{ estoque.loja.nome }}</td>
+              {% if is_admin %}
+              <td>
+                <a href="{% url 'estoques:editar_estoque' estoque.id %}" class="btn btn-sm btn-warning">Editar</a>
+              </td>
+              {% endif %}
             </tr>
-        </thead>
-        <tbody>
-            {% for estoque in estoques %}
-                <tr>
-                    <td>{{ estoque.catalogo.item.nome }}</td>
-                    <td>{{ estoque.catalogo.fabricante.nome }}</td>
-                    <td>{{ estoque.catalogo.tamanho_calcado }}</td>
-                    <td>R$ {{ estoque.catalogo.preco }}</td>
-                    <td>{{ estoque.qtd_estoque }}</td>
-                    <td>{{ estoque.loja.nome }}</td>
-                    <td>
-                        <a href="{% url 'estoques:editar_estoque' estoque.id %}" class="btn btn-sm btn-warning">
-                            Editar
-                        </a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center text-muted">Nenhum item encontrado.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+          {% empty %}
+            <tr><td colspan="7" class="text-center text-muted">Nenhum item encontrado.</td></tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
     </table>
-    <a href="{% url 'estoques:menus' %}" class="btn btn-outline-secondary">Voltar</a>
+    <a href="{% url 'estoques:menus' %}" class="btn btn-secondary">Voltar </a>
 </div>
 {% endblock %}

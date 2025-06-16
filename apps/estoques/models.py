@@ -15,7 +15,6 @@ class Estoque(BaseModel):
     qtd_estoque = models.PositiveBigIntegerField(
         db_column='QT_ESTOQUE',
         blank=False,
-        null=False,
         verbose_name='Quantidade liberada do itens',
         default=0,
     )

@@ -43,12 +43,13 @@ FabricanteFormSet = modelformset_factory(
 class ItemFabricanteForm(forms.ModelForm):
     class Meta:
         model = ItemFabricante
-        fields = ['item', 'fabricante', 'tamanho_calcado', 'preco']
+        fields = ['item', 'fabricante', 'tamanho_calcado', 'preco', 'imagem']
         labels = {
             'item': 'Item',
             'fabricante': 'Fabricante',
             'tamanho_calcado': 'Tamanho Calçado',
             'preco': 'Preço',
+            'imagem': 'Imagem para o catálogo',
         }
         widgets = {
             'id': forms.HiddenInput(),

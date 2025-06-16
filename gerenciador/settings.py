@@ -62,6 +62,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+MEDIA_URL = '/fotos_catalogo/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'fotos_catalogo')
+
+STATIC_URL = '/static/'
+import os
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
 ROOT_URLCONF = 'gerenciador.urls'
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']

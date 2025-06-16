@@ -102,7 +102,8 @@ class Cliente(BaseModelDeleteLogico):
         related_name="clientes",
         verbose_name='endereço',
         db_column='FK_ENDERECO',
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        null=True,
     )
     enderecos = models.ManyToManyField(
         'enderecos.Endereco',
@@ -117,7 +118,8 @@ class Cliente(BaseModelDeleteLogico):
         'autenticacao.UsuarioBase',
         verbose_name='usuário',
         db_column='FK_USUARIO_BASE',
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        null=True,
     )
     passaporte = models.CharField(
         max_length=8,
@@ -159,14 +161,6 @@ class Cliente(BaseModelDeleteLogico):
     class Meta:
         verbose_name = 'Cliente'
         db_table = 'TB_CLIENTE'
-        constraints = [
-            models.CheckConstraint(
-                check=Q(cpf__isnull=False) | Q(passaporte__isnull=False),
-                name='not_both_null'
-            )
-        ]
-
-
 
     @classmethod
     def buscar(self, cpf):

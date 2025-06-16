@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -11,6 +11,7 @@ from datetime import date
 
 
 from apps.base.formsets import FormSetFactory
+from apps.base.utils import is_vendedor
 from apps.cliente.dataclasses import DadosClienteDTO
 from apps.cliente.domain import ClienteDomain
 from apps.cliente.exceptions import ClienteErroGenericoException
@@ -59,7 +60,7 @@ def cadastro(request):
                         anexo.save()
 
                     messages.success(request, "Cadastro realizado com sucesso!")
-                    return redirect('autenticacao:login')  # Redireciona para página de confirmação
+                    return redirect('autenticacao:login')
             except Exception as e:
                 messages.error(request, f"Ocorreu um erro ao salvar os dados: {e}")
         else:
@@ -144,7 +145,7 @@ def perfil(request):
     return render(request, 'cliente/perfil.html', context)
 
 
-
+@user_passes_test(is_vendedor)
 def listar_clientes_gestao(request):
     queryset = Cliente.objects.all()
 
@@ -176,6 +177,7 @@ def listar_clientes_gestao(request):
     return render(request, 'cliente/listar_clientes_gestao.html', context)
 
 
+@user_passes_test(is_vendedor)
 def adicionar_cliente_gestao(request):
     if request.method == 'POST':
         form = CadastrarClienteForm(request.POST, request.FILES)
@@ -231,7 +233,7 @@ def adicionar_cliente_gestao(request):
     return render(request,'cliente/cadastro.html', context)
 
 
-
+@user_passes_test(is_vendedor)
 def editar_cadastro(request, id_cliente):
     domain = ClienteDomain.insstance_by_cliente(id_cliente)
 

@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <h2 class="mb-4">Adicionar Item ao Catálogo</h2>
 
-    <form method="post" novalidate>
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
         <!-- ItemFabricantes -->
@@ -72,14 +72,14 @@
 
             <!-- Botão Adicionar -->
             <button type="button" class="btn btn-outline-success mt-2 d-flex align-items-center gap-2" id="add-fabricante">
-                <i class="bi bi-plus-circle"></i> Adicionar Fabricante
+                <i class="bi bi-plus-circle"></i> Adicionar Catálogo
             </button>
             </div>
         </fieldset>
 
         <!-- Botões -->
         <div class="d-flex justify-content-between mt-4">
-            <a href="{% url 'catalogo:listar_catalogo_gestao' %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'catalogo:listar_catalogo_gestao' %}" class="btn btn-secondary">Voltar </a>
             <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
     </form>

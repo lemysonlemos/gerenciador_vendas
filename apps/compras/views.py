@@ -1,15 +1,18 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 
+from apps.base.utils import is_vendedor
 from apps.compras.domain import ComprasDomain, ComprasFiltroDomain
 from apps.compras.forms import CompraForm, CompraGestaoForm
 from apps.compras.models import Compra
 from apps.estoques.domain import EstoqueDomain
 
 
+@user_passes_test(is_vendedor)
 def listar_compras(request):
     filtro_cliente = request.GET.get("cliente", "")
     filtro_item = request.GET.get("item", "")
@@ -89,7 +92,7 @@ def compra_cliente(request):
                 with transaction.atomic():
                     compra.save()
                 messages.success(request, "Compra realizada com sucesso!")
-                return redirect('compras:listar_compras')  # ajuste para a url correta de listar compras
+                return redirect('compras:listar_compras')
             except ValidationError as e:
                 form.add_error(None, e.message)
     else:
@@ -116,6 +119,7 @@ def compra_cancelada(request, id_compra):
     return redirect('compras:listar_compras')
 
 
+@user_passes_test(is_vendedor)
 def compra_vendedor(request, id_estoque):
     vendedor = request.user.usuario.vinculos.first()
 
@@ -143,7 +147,7 @@ def compra_vendedor(request, id_estoque):
                 with transaction.atomic():
                     compra.save()
                 messages.success(request, "Compra realizada com sucesso!")
-                return redirect('compras:listar_compras')  # ajuste para a url correta de listar compras
+                return redirect('compras:listar_compras')
             except ValidationError as e:
                 form.add_error(None, e.message)
     else:

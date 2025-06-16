@@ -36,13 +36,15 @@ class Vinculo(BaseModel):
         'autenticacao.Usuario',
         related_name="vinculos",
         on_delete=models.PROTECT,
-        db_column='FK_USUARIO'
+        db_column='FK_USUARIO',
+        null=True,
     )
     loja = models.ForeignKey(
         'lojas.Loja',
         related_name="vinculos",
         on_delete=models.PROTECT,
-        db_column='FK_UNIDADE_CADEIA_FRIO'
+        db_column='FK_LOJA',
+        null=True,
     )
     status = models.IntegerField(
         choices=STATUS_CHOICES,
@@ -53,15 +55,16 @@ class Vinculo(BaseModel):
     perfil = models.IntegerField(
         choices=STATUS_PERFIL,
         db_column='ST_PERFIL',
-        default=0,
-        db_index=True
+        default=1,
+        db_index=True,
+        null=True,
     )
     autorizado_por_usuario = models.ForeignKey(
         'autenticacao.Usuario',
         related_name="vinculos_autorizados",
         null=True,
         on_delete=models.PROTECT,
-        db_column='AUTORIZADOR_POR'
+        db_column='AUTORIZADOR_POR',
     )
     data_autorizacao = models.DateTimeField(
         null=True,

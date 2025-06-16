@@ -1,6 +1,9 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, reverse
 
-from apps.estoques.domain import EstoqueDomain
+from apps.base.utils import is_admin, is_vendedor
+from apps.estoques.domain import EstoqueFiltroDomain, EstoqueFiltroGestaoDomain, EstoqueDomain
 from apps.estoques.forms import EstoqueFormSet, EstoqueForm
 from apps.estoques.models import Estoque
 
@@ -10,36 +13,24 @@ def menus(request):
     return render(request, 'estoque/menus.html')
 
 
+@user_passes_test(is_vendedor)
 def listar_estoque(request):
-    estoques = Estoque.objects.select_related(
-        'catalogo__item', 'catalogo__fabricante', 'loja'
+
+    filtro_fabricante = request.GET.get('fabricante', '')
+    filtro_tamanho = request.GET.get('tamanho', '')
+    filtro_preco_min = request.GET.get('preco_min', '')
+    filtro_preco_max = request.GET.get('preco_max', '')
+    filtro_loja = request.GET.get('loja_nome', '')  # nome da loja, não o id
+
+    domain = EstoqueFiltroGestaoDomain(
+        filtro_fabricante=filtro_fabricante,
+        filtro_tamanho=filtro_tamanho,
+        filtro_preco_min=filtro_preco_min,
+        filtro_preco_max=filtro_preco_max,
+        filtro_loja=filtro_loja
     )
 
-    # Filtros GET
-    qtd_min = request.GET.get('qtd_min')
-    loja_id = request.GET.get('loja')
-    item_id = request.GET.get('item')
-    fabricante_id = request.GET.get('fabricante')
-    tamanho = request.GET.get('tamanho')
-    preco_max = request.GET.get('preco_max')
-
-    if qtd_min:
-        estoques = estoques.filter(qtd_estoque__gte=qtd_min)
-
-    if loja_id:
-        estoques = estoques.filter(loja_id=loja_id)
-
-    if item_id:
-        estoques = estoques.filter(catalogo__item_id=item_id)
-
-    if fabricante_id:
-        estoques = estoques.filter(catalogo__fabricante_id=fabricante_id)
-
-    if tamanho:
-        estoques = estoques.filter(catalogo__tamanho_calcado__icontains=tamanho)
-
-    if preco_max:
-        estoques = estoques.filter(catalogo__preco__lte=preco_max)
+    estoques = domain.listar_estoques_por_aba()
 
     context = {
         'estoques': estoques,
@@ -48,6 +39,7 @@ def listar_estoque(request):
     return render(request, 'estoque/listar_estoque.html', context)
 
 
+@user_passes_test(is_admin)
 def adicionar_estoque(request):
     if request.method == 'POST':
         formset = EstoqueFormSet(request.POST, queryset=Estoque.objects.none())
@@ -68,10 +60,16 @@ def adicionar_estoque(request):
     return render(request, 'estoque/adicionar_estoque.html', {'formset': formset})
 
 
+@user_passes_test(is_admin)
 def editar_estoque(request, id_estoque):
-    domain = EstoqueDomain.insstance_by_estoque(id_estoque)
+    domain = EstoqueDomain.instance_by_estoque(id_estoque)
     estoque = domain.get_estoque()
     if request.method == 'POST':
+        if 'excluir' in request.POST:
+            estoque.delete()
+            messages.success(request, "Exclusão realizada com sucesso.")
+            return redirect(reverse('estoques:listar_estoque'))
+
         form = EstoqueForm(request.POST, instance=estoque)
         if form.is_valid():
             form.save()

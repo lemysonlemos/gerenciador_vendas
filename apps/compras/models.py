@@ -81,7 +81,6 @@ class Compra(BaseModel):
     qtd_compra = models.PositiveBigIntegerField(
         db_column='QT_COMPRA',
         blank=False,
-        null=False,
         verbose_name='Quantidade Compra',
     )
     status_compra_online = models.BooleanField(

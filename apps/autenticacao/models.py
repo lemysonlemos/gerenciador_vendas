@@ -40,6 +40,7 @@ class UsuarioBase(AbstractBaseUser, PermissionsMixin):
         db_column='CO_USUARIO',
         verbose_name='CPF',
         unique=True,
+        null=True,
     )
     is_active = models.BooleanField(
         db_column='ST_ATIVO',
@@ -59,38 +60,7 @@ class UsuarioBase(AbstractBaseUser, PermissionsMixin):
     vinculo_login = None
 
     objects = UsuarioManager()
-    #
-    # @property
-    # def get_vinculo_login(self):
-    #     return self.vinculo_login
-    #
-    # def has_perm(self, perm, obj=None):
-    #     from apps.vinculos.models.vinculos_models import Vinculo, PerfilAcesso
-    #     """
-    #     Veririca as permissões dos usuários
-    #
-    #     - Verifica se o usuário está ativo se é superusuário e tá logado em um vinculo. Se essas condições forem
-    #     satisfeitas o usuário terá permissão a tudo.
-    #
-    #     - Verifica se vincuo tá ativo, perfil tá ativo, permissao existe. Se essas condições forem satisfeitas, libera
-    #     a funcionalidade.
-    #     """
-    #     if self.is_active and self.is_superuser and self.get_vinculo_login:
-    #         return True
-    #     try:
-    #         vinculo = Vinculo.objects.get(pk=self.get_vinculo_login, status__in=[1, 3])
-    #         acesso = PerfilAcesso.objects.filter(
-    #             tipos_gestao__in=[vinculo.cadeia_frio.tipo_gestao],
-    #             nivel_atuacao=vinculo.cadeia_frio.nivel_atuacao,
-    #             perfil=vinculo.perfil,
-    #             grupo__permissoes__nome=perm
-    #         )
-    #         if acesso.exists():
-    #             return True
-    #     except Exception:
-    #         return False
-    #
-    #     return False
+
 
     def __str__(self):
         return self.username

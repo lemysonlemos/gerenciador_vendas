@@ -43,7 +43,11 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-secondary ms-2">Cancelar</a>
+        <button type="submit" name="excluir" class="btn btn-danger float-end"
+                onclick="return confirm('Tem certeza que deseja excluir este estoque?')">
+            Excluir
+        </button>
+        <a href="{% url 'estoques:listar_estoque' %}" class="btn btn-secondary">Voltar </a>
     </form>
 </div>
 

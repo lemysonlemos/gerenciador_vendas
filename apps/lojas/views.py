@@ -1,6 +1,8 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
+from apps.base.utils import is_admin, is_vendedor
 from apps.contatos.forms import ContatoForm
 from apps.enderecos.forms import EnderecoForm
 from apps.lojas.domain import LojaDomain
@@ -8,6 +10,7 @@ from apps.lojas.forms import LojaFormSet, LojaForm
 from apps.lojas.models import Loja, LojaContato
 
 
+@user_passes_test(is_vendedor)
 def listar_lojas(request):
     nome = request.GET.get('nome', '')
     status = request.GET.get('status', '')
@@ -30,6 +33,7 @@ def listar_lojas(request):
     return render(request, 'loja/listar_lojas.html', context)
 
 
+@user_passes_test(is_admin)
 def adicionar_loja(request):
     if request.method == 'POST':
         formset = LojaFormSet(request.POST, prefix='loja')
@@ -62,6 +66,9 @@ def adicionar_loja(request):
     }
 
     return render(request, 'loja/adicionar_loja.html', context)
+
+
+@user_passes_test(is_admin)
 def editar_loja(request, id_loja):
     domain = LojaDomain.instance_by_loja(id_loja)
     loja = domain.get_loja()

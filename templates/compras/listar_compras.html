@@ -20,7 +20,7 @@
         <div class="col-md-3">
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                <a href="{% url 'compras:listar_compras' %}" class="btn btn-secondary w-100">Limpar</a>
+                <a href="{% url 'compras:listar_compras_cliente' %}" class="btn btn-secondary w-100">Limpar</a>
             </div>
         </div>
     </form>
@@ -70,6 +70,6 @@
         </tbody>
     </table>
 
-    <a href="{% url 'cliente:painel' %}" class="btn btn-secondary">Voltar para Menu</a>
+    <a href="{% url 'cliente:painel' %}" class="btn btn-secondary">Voltar </a>
 </div>
 {% endblock %}

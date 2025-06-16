@@ -5,9 +5,11 @@
     <h2 class="mb-4">Vínculos</h2>
 
     <!-- Botão Adicionar -->
+    {% if is_admin %}
     <div class="mb-3">
         <a href="{% url 'vinculos:adicionar_vinculo' %}" class="btn btn-success">Adicionar Vínculo</a>
     </div>
+    {% endif %}
 
     <!-- Filtros -->
     <form method="get" class="mb-4 row g-2">
@@ -22,7 +24,7 @@
         </div>
         <div class="col-md-2">
             <select name="perfil" class="form-select">
-                <option value="">Todos os Perfis</option>
+                <option value="">Perfis</option>
                 {% for val, label in perfil_choices_full %}
                     <option value="{{ val }}" {% if filtro_perfil|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
@@ -30,14 +32,15 @@
         </div>
         <div class="col-md-2">
             <select name="status" class="form-select">
-                <option value="">Todos os Status</option>
+                <option value="">Status</option>
                 {% for val, label in status_choices_full %}
                     <option value="{{ val }}" {% if filtro_status|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2 mt-2">
+        <div class="col-md-12 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{% url 'vinculos:listar_vinculos' %}" class="btn btn-secondary">Limpar</a>
         </div>
     </form>
 
@@ -50,7 +53,9 @@
                 <th>Loja</th>
                 <th>Perfil</th>
                 <th>Status</th>
+                {% if is_admin %}
                 <th>Ações</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -73,9 +78,11 @@
                         {% endif %}
                     {% endfor %}
                 </td>
+                {% if is_admin %}
                 <td>
                     <a href="{% url 'vinculos:editar_vinculo' vinculo.id %}" class="btn btn-sm btn-warning">Editar</a>
                 </td>
+                {% endif %}
             </tr>
             {% empty %}
             <tr>

@@ -4,6 +4,9 @@ from simple_history.models import HistoricalRecords
 from apps.base.models import BaseModel
 
 
+def imagem_path(instance, filename):
+    return f'fotos_catalogo/img_{instance.id}_{filename}'
+
 class Item(BaseModel):
     id = models.AutoField(
         db_column='PK_ITEM',
@@ -113,6 +116,12 @@ class ItemFabricante(BaseModel):
         null=True,
         blank=True,
         verbose_name="NU_PRECO"
+    )
+    imagem = models.ImageField(
+        upload_to=imagem_path,
+        null=True,
+        blank=True,
+        verbose_name='IM_ITEM_FABRICANTE'
     )
     class Meta:
         verbose_name = 'Relação Item Fabricante'

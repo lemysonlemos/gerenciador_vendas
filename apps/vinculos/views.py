@@ -1,9 +1,10 @@
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 from django.contrib import messages
 
+from apps.base.utils import is_admin, is_vendedor
 from apps.cliente.domain import ClienteDomain
 from apps.cliente.forms import CadastrarClienteForm, ClienteForm, CpfForm
 from apps.vinculos.domain import VinculoDomain
@@ -12,6 +13,7 @@ from apps.vinculos.forms import VinculoForm
 from apps.vinculos.models import Vinculo
 
 
+@user_passes_test(is_vendedor)
 def listar_vinculos(request):
     cpf = request.GET.get('cpf', '').strip()
     nome = request.GET.get('nome', '').strip()
@@ -39,7 +41,7 @@ def listar_vinculos(request):
         'filtro_loja': loja,
         'filtro_perfil': perfil,
         'filtro_status': status,
-        'perfil_choices': Vinculo.StatusVinculo.choices,  # para mostrar no select
+        'perfil_choices': Vinculo.StatusVinculo.choices,
         'status_choices': Vinculo.PerfilVinculo.choices,
         'status_choices_full': Vinculo.STATUS_CHOICES,
         'perfil_choices_full': Vinculo.STATUS_PERFIL,
@@ -47,6 +49,7 @@ def listar_vinculos(request):
     return render(request, 'vinculo/listar_vinculos.html', context)
 
 
+@user_passes_test(is_admin)
 def adicionar_vinculo(request):
     if request.method == 'POST':
         form = VinculoForm(request.POST)
@@ -59,6 +62,8 @@ def adicionar_vinculo(request):
 
     return render(request, 'vinculo/vinculo_gestao.html', {'form': form, 'titulo': 'Adicionar Vínculo'})
 
+
+@user_passes_test(is_admin)
 def editar_vinculo(request, vinculo_id):
     domain = VinculoDomain.new_instance_by_id(vinculo_id)
     vinculo = domain.get_vinculo()
