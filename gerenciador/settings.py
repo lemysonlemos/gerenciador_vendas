@@ -81,9 +81,9 @@ MEDIA_URL = '/fotos_catalogo/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'fotos_catalogo')
 
 # STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+# ]
 
 ROOT_URLCONF = 'gerenciador.urls'
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
