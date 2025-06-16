@@ -1,1 +1,1 @@
-web: gunicorn gerenciador_vendas.wsgi
+web: gunicorn gerenciador.wsgi
