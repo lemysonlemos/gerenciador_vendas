@@ -82,6 +82,11 @@ class EnderecoForm(forms.ModelForm):
         ),
         required=True,
     )
+    DELETE = forms.BooleanField(
+        label='',
+        required=False,
+        widget=forms.HiddenInput
+    )
 
     class Meta:
         model = Endereco

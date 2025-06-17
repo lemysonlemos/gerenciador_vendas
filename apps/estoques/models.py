@@ -18,6 +18,12 @@ class Estoque(BaseModel):
         verbose_name='Quantidade liberada do itens',
         default=0,
     )
+    qtd_reservada = models.PositiveBigIntegerField(
+        db_column='QT_RESERVADA',
+        blank=False,
+        verbose_name='Quantidade reservada',
+        default=0,
+    )
     catalogo = models.ForeignKey(
         'catalogo.ItemFabricante',
         models.PROTECT,

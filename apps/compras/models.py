@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.db import transaction
 from django.core.exceptions import ValidationError
@@ -98,6 +99,22 @@ class Compra(BaseModel):
         default=False,
         verbose_name='Cancelar_Compra',
     )
+    dt_finalizacao = models.DateTimeField(
+        db_column='DT_FINALIZACAO',
+        auto_now_add=False,
+        auto_now=False,
+        verbose_name='Finalizado em',
+        null=True,
+    )
+
+    dt_cancelamento = models.DateTimeField(
+        db_column='DT_CANCELAMENTO',
+        auto_now_add=False,
+        auto_now=False,
+        verbose_name='Cancelado em',
+        null=True,
+    )
+
 
     class Meta:
         verbose_name = 'Compra'
@@ -110,20 +127,19 @@ class Compra(BaseModel):
         is_new = self._state.adding
         if is_new:
             if self.estoque and self.qtd_compra:
-                if self.estoque.qtd_estoque < self.qtd_compra:
+                qtd_disponivel = self.estoque.qtd_estoque - self.estoque.qtd_reservada
+                if qtd_disponivel < self.qtd_compra:
                     raise ValidationError("Quantidade em estoque insuficiente.")
 
-                self.estoque.qtd_estoque -= self.qtd_compra
                 with transaction.atomic():
+                    self.estoque.qtd_reservada += self.qtd_compra
                     self.estoque.save()
                     super().save(*args, **kwargs)
                 return
+
         super().save(*args, **kwargs)
 
     def cancelar(self):
-        """
-        Cancela a compra e devolve a quantidade ao estoque.
-        """
         if self.cancelar_compra:
             raise ValidationError("Esta compra já foi cancelada.")
 
@@ -132,7 +148,27 @@ class Compra(BaseModel):
 
         with transaction.atomic():
             self.cancelar_compra = True
-            self.estoque.qtd_estoque += self.qtd_compra
+            self.dt_cancelamento = timezone.now()
+            self.estoque.qtd_reservada -= self.qtd_compra
+            self.estoque.save()
+            self.save()
+
+
+    def finalizar(self):
+        if self.compra_finalizada:
+            raise ValidationError("Esta compra já foi finalizada.")
+
+        if not self.estoque:
+            raise ValidationError("Compra sem estoque vinculado.")
+
+        if self.estoque.qtd_estoque < self.qtd_compra:
+            raise ValidationError("Estoque insuficiente para finalização.")
+
+        with transaction.atomic():
+            self.compra_finalizada = True
+            self.dt_finalizacao = timezone.now()
+            self.estoque.qtd_estoque -= self.qtd_compra
+            self.estoque.qtd_reservada -= self.qtd_compra
             self.estoque.save()
             self.save()
 

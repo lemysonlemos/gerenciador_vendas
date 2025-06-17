@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.contrib.auth import logout
 
 from .forms import LoginForm
 from ..cliente.forms import EsqueceuSenhaForm
@@ -10,7 +11,9 @@ from ..cliente.models import Cliente
 from ..vinculos.domain import VinculoDomain
 
 
+
 def inicio(request):
+    logout(request)
     return render(request, 'autenticacao/inicio.html')
 
 def login(request):

@@ -270,5 +270,5 @@ def editar_cadastro(request, id_cliente):
         'formset_contato': formset_contato,
         'formset_endereco': formset_endereco,
     }
-    return render(request, 'cliente/perfil.html', context)
+    return render(request, 'cliente/editar_cadastro.html', context)
 

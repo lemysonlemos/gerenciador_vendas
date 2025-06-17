@@ -94,7 +94,7 @@ def compra_cliente(request):
                 qtd_compra=qtd,
                 pagamento=pagamento,
                 status_compra_online=True,
-                compra_finalizada=True,
+                compra_finalizada=False,
                 cancelar_compra=False,
             )
             try:
@@ -128,6 +128,20 @@ def compra_cancelada(request, id_compra):
     return redirect('compras:listar_compras')
 
 
+def compra_finalizada(request, id_compra):
+
+    domain = ComprasDomain.instance_by_compras(id_compra)
+    compra = domain.compra
+
+    if not compra.compra_finalizada:
+        compra.finalizar()
+        messages.success(request, "Compra cancelada com sucesso.")
+    else:
+        messages.warning(request, "Não é possível cancelar esta compra.")
+
+    return redirect('compras:listar_compras')
+
+
 @perfil_requerido(Vinculo.PerfilVinculo.GERENTE, Vinculo.PerfilVinculo.VENDEDOR, Vinculo.PerfilVinculo.ADMIN)
 def compra_vendedor(request, id_estoque):
     vendedor = request.user.usuario.vinculos.first()
@@ -149,7 +163,7 @@ def compra_vendedor(request, id_estoque):
                 qtd_compra=qtd,
                 pagamento=pagamento,
                 status_compra_online=False,
-                compra_finalizada=True,
+                compra_finalizada=False,
                 cancelar_compra=False,
             )
             try:

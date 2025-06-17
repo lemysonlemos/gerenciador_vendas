@@ -55,23 +55,33 @@
                 <td>{{ compra.qtd_compra }}</td>
                 <td>{{ compra.status_compra_online|yesno:"Sim,Não" }}</td>
                 <td>
-                    {% if compra.cancelar_compra %}
-                        Cancelada
-                    {% elif compra.compra_finalizada %}
-                        Finalizada
-                    {% else %}
-                        Aberta
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not compra.cancelar_compra %}
-                        <form method="post" action="{% url 'compras:compra_cancelada' compra.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
-                        </form>
-                    {% else %}
-                        <button class="btn btn-secondary btn-sm" disabled>Cancelada</button>
-                    {% endif %}
+                    <div class="mb-2">
+                        {% if not compra.compra_finalizada and not compra.cancelar_compra %}
+                            <form method="post" action="{% url 'compras:compra_finalizada' compra.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm w-100">Finalizar</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                {% if compra.cancelar_compra %}
+                                    Finalizar
+                                {% else %}
+                                    Finalizada
+                                {% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {% if not compra.cancelar_compra %}
+                            <form method="post" action="{% url 'compras:compra_cancelada' compra.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm w-100">Cancelar</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm w-100" disabled>Cancelada</button>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% empty %}
