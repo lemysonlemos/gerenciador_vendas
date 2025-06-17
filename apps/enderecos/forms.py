@@ -7,7 +7,7 @@ from apps.enderecos.models import UnidadeFederativa, Municipio, TipoEndereco, En
 
 class EnderecoForm(forms.ModelForm):
     uf = forms.ModelChoiceField(
-        queryset=UnidadeFederativa.objects.filter(sigla='RN').order_by('nome'),
+        queryset=UnidadeFederativa.objects.all().order_by('nome'),
         widget=s2forms.Select2Widget(
             attrs={
                 'data-minimum-input-length': 2,
@@ -17,13 +17,15 @@ class EnderecoForm(forms.ModelForm):
     )
 
     municipio = forms.ModelChoiceField(
-        queryset=Municipio.objects.filter(uf__sigla='RN').order_by('nome'),
+        label='Município',
+        queryset=Municipio.objects.all(),
         widget=s2forms.Select2Widget(
             attrs={
-                'data-minimum-input-length': 2,
+                'data-minimum-input-length': 6,
                 'data-selection-css-class': 'form-control'
             }
         ),
+        required=True
     )
     rua = forms.CharField(
         label='Logradouro',
@@ -91,27 +93,6 @@ class EnderecoForm(forms.ModelForm):
     class Meta:
         model = Endereco
         fields = ('uf', 'municipio', 'rua', 'numero', 'complemento', 'bairro', 'cep', 'tipo_endereco')
-
-    def __init__(self, *args, **kwargs):
-        self.visualizar = kwargs.pop('visualizar', None)
-        self.uf_kw = kwargs.pop('uf', None)
-        super().__init__(*args, **kwargs)
-
-        if self.uf_kw:
-            self.fields['uf'].queryset = UnidadeFederativa.objects.filter(
-                sigla=self.uf_kw
-            )
-            self.fields['municipio'].queryset = Municipio.objects.filter(
-                uf__sigla=self.uf_kw
-            )
-
-        if hasattr(self.instance, 'municipio'):
-            self.fields['uf'].initial = Municipio.objects.get(id=self.instance.municipio.id).uf
-
-        if self.visualizar:
-            for field in self.fields:
-                self.fields[field].widget.attrs["readonly"] = True
-                self.fields[field].widget.attrs["disabled"] = True
 
 
 EnderecoFormSet = modelformset_factory(

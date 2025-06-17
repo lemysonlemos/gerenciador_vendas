@@ -1,10 +1,10 @@
+from import_export.admin import ImportExportModelAdmin
 from django.contrib import admin
 
 from apps.catalogo.models import ItemFabricante, Fabricante, Item
 
-
 @admin.register(Item)
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(ImportExportModelAdmin):
     list_display = ('id', 'nome', 'nome_reduzido', 'ativo')
     search_fields = ('nome', 'nome_reduzido')
     list_filter = ('ativo',)
@@ -12,7 +12,7 @@ class ItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(Fabricante)
-class FabricanteAdmin(admin.ModelAdmin):
+class FabricanteAdmin(ImportExportModelAdmin):
     list_display = ('id', 'nome', 'nome_reduzido', 'ativo')
     search_fields = ('nome', 'nome_reduzido')
     list_filter = ('ativo',)
@@ -20,7 +20,7 @@ class FabricanteAdmin(admin.ModelAdmin):
 
 
 @admin.register(ItemFabricante)
-class ItemFabricanteAdmin(admin.ModelAdmin):
+class ItemFabricanteAdmin(ImportExportModelAdmin):
     list_display = ('id', 'item', 'fabricante', 'tamanho_calcado', 'preco', 'imagem_preview')
     search_fields = ('item__nome', 'fabricante__nome')
     list_filter = ('fabricante', 'item')
