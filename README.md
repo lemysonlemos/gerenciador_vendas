@@ -26,7 +26,7 @@ Comente as outras duas opções (Docker e PostgreSQL local).
 Descomente SECRET_KEY = os.getenv("SECRET_KEY") e import dj_database_url
 Suba o projeto para o Heroku conforme sua configuração padrão.
 
-obs: para rodar via docker ou postgreslocal comente
+OBS: para rodar via docker ou postgreslocal comente
 SECRET_KEY = os.getenv("SECRET_KEY") e import dj_database_url
 e descomente o SECRET_KEY
 
