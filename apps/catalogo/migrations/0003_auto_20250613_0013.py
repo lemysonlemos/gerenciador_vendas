@@ -62,5 +62,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(inserir_itens_fabricantes),
+
     ]

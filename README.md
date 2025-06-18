@@ -67,6 +67,12 @@ Pode editar seu próprio perfil.
 Pode visualizar e realizar compras pelo catálogo.
 Pode acompanhar o status das suas compras.
 
+🔄 Fluxo de estoque
+Faça a adição dos itens, fabricantes e por fim do catálogo, adicione imagem para o catálogo) na opção catálogo do menu.
+Depois na opção estoque, em adicionar estoque, selecione o catalogo e insira a quantidade que tem em estoque.
+A visualização final fica em catálogo.
+
+
 🔄 Fluxo de Compra
 Após a compra (pelo cliente ou vendedor), a compra fica com status "Em processamento".
 Um Gerente ou Admin deve finalizar a compra manualmente.
