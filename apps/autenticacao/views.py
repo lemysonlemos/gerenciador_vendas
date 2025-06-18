@@ -17,6 +17,7 @@ def inicio(request):
     return render(request, 'autenticacao/inicio.html')
 
 def login(request):
+    logout(request)
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -35,6 +36,7 @@ def login(request):
 
 
 def login_funcionario(request):
+    logout(request)
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
